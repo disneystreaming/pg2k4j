@@ -1,6 +1,6 @@
 fileLoader.withGit(
   'https://github.bamtech.co/bamnet-search/search-jenkins',
-  '1b081961d2dbb920928b0fbb58c723b43cb7e732',
+  'b5752e5c59201aa2b481adcf48687e4c2aa560b7',
   'github-user-search'
 ) {
   source = fileLoader.load('source.groovy')
