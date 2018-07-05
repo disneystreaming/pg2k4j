@@ -95,7 +95,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>com.bamtech.p13n.pg2kinesis.SlotReader</mainClass>
+							<mainClass>com.bamtech.p13n.pg2k4j.kirby.KirbySlotReaderKinesisWriter</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
