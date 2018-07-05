@@ -77,6 +77,18 @@
 			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.newrelic.agent.java</groupId>
+			<artifactId>newrelic-agent</artifactId>
+			<version>3.38.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.newrelic.agent.java</groupId>
+			<artifactId>newrelic-api</artifactId>
+			<version>3.38.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>

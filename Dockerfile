@@ -6,6 +6,7 @@ RUN apt-get update && \
 
 COPY src /src
 COPY pom.xml /pom.xml
+COPY newrelic/newrelic.yml /target/newrelic/newrelic.yml
 
 RUN mvn clean install
 
