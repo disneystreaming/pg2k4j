@@ -8,7 +8,7 @@ COPY src /src
 COPY pom.xml /pom.xml
 COPY newrelic/newrelic.yml /target/newrelic/newrelic.yml
 
-RUN mvn clean install
+RUN mvn clean install test
 
 
 CMD [ "sh", "-c", "java  -jar /target/kirby-pg2k4j-1.0-SNAPSHOT-jar-with-dependencies.jar " ]
