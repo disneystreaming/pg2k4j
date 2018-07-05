@@ -10,7 +10,7 @@ COPY pom.xml /pom.xml
 RUN mvn clean install
 
 
-CMD [ "sh", "-c", "java  -jar /target/pg2kinesis-1.0-SNAPSHOT-jar-with-dependencies.jar " ]
+CMD [ "sh", "-c", "java  -jar /target/kirby-pg2k4j-1.0-SNAPSHOT-jar-with-dependencies.jar " ]
 
 
 ARG build_number
