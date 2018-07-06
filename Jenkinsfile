@@ -97,9 +97,16 @@ node("docker"){
     stage('Push') {
       if (shouldBump) {
         source.pushBumpCommit(version, "bot.p13n")
+        buildImage.push('integrationtests')
       }
       if (shouldBuild) {
         dockerImage.push(buildImage, version, slackChannel, slackTokenId)
+      }
+    }
+
+    stage('Trigger Integration Tests') {
+      if (shouldBump) {
+        sh 'curl https://p13n.jenkins.us-east-1.bamgrid.net/view/tests/job/p13n-integration-tests-kirby-qa/buildWithParameters?token=western_beef'
       }
     }
 
