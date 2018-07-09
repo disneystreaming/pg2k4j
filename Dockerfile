@@ -7,9 +7,10 @@ RUN apt-get update && \
 COPY src /src
 COPY pom.xml /pom.xml
 COPY integrationtests_resources /integrationtests_resources
-COPY newrelic/newrelic.yml /target/newrelic/newrelic.yml
 
 RUN mvn clean install test
+
+COPY newrelic/newrelic.yml /target/newrelic/newrelic.yml
 
 CMD [ "sh", "-c", "java $JAVA_OPTS -javaagent:/target/newrelic/newrelic-agent-3.38.0.jar $NEWRELIC_ENVIRONMENT -jar /target/kirby-pg2k4j-1.0-SNAPSHOT-jar-with-dependencies.jar " ]
 
