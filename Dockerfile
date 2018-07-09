@@ -11,7 +11,7 @@ COPY newrelic/newrelic.yml /target/newrelic/newrelic.yml
 
 RUN mvn clean install test
 
-CMD [ "sh", "-c", "java $JAVA_OPTS -jar /target/kirby-pg2k4j-1.0-SNAPSHOT-jar-with-dependencies.jar " ]
+CMD [ "sh", "-c", "java $JAVA_OPTS -javaagent:/target/newrelic/newrelic-agent-3.38.0.jar $NEWRELIC_ENVIRONMENT -jar /target/kirby-pg2k4j-1.0-SNAPSHOT-jar-with-dependencies.jar " ]
 
 ARG build_number
 ARG build_timestamp
