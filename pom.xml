@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.bamtech.p13n</groupId>
-	<artifactId>kirby-pg2k4j</artifactId>
+	<artifactId>pg2k4j</artifactId>
 	<version>${version}</version>
 	<packaging>jar</packaging>
  
