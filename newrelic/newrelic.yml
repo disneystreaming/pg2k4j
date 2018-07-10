@@ -287,18 +287,22 @@ common: &default_settings
 # NOTE if your application has other named environments, you should
 # provide configuration settings for these environments here.
 
-bamtech-dev:
+bamtech-dev-riot:
   <<: *default_settings
-  app_name: kirby-pg2k4j (Dev)
+  app_name: kirby-pg2k4j (Riot Dev)
 
-bamtech-local:
+bamtech-dev-sdk:
   <<: *default_settings
-  app_name: kirby-pg2k4j (Local)
+  app_name: kirby-pg2k4j (SDK Dev)
 
-bamtech-prod:
+bamtech-prod-espn:
   <<: *default_settings
-  app_name: kirby-pg2k4j (Prod)
+  app_name: kirby-pg2k4j (ESPN Prod)
+
+bamtech-prod-mlbtv:
+  <<: *default_settings
+  app_name: kirby-pg2k4j (MLBTV Prod)
 
 bamtech-qa:
   <<: *default_settings
-  app_name: kirby-pg2k4j (QA)
+  app_name: kirby-pg2k4j (Launchpad QA)
