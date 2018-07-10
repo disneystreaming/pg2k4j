@@ -9,7 +9,7 @@ Inspired by [pg2kinesis](https://github.com/handshake/pg2kinesis), this library 
 can keep up with heavy write workloads of more than 1 million inserts and updates per minute. 
 ## Usage
 Use pg2k4j by creating an instance of `SlotReaderKinesisWriter` and calling `runLoop` on that instance. This will automatically
-provision a replication slot in the postgres database through which it may read chunks of the [WAL](https://www.postgresql.org/docs/current/static/wal-intro.html).
+provision a replication slot in the postgres database through which it reads chunks of the [WAL](https://www.postgresql.org/docs/current/static/wal-intro.html).
 `SlotReaderKinesisWriter` may be subclassed and configured to fit any use case involving reading the postgres transaction log.
  By default `SlotReaderKinesisWriter` uses the [wal2json](https://github.com/eulerto/wal2json) output plugin to deserialize messages from the logical replication slot into
  `SlotMessage`s. The default implementation then writes out this class as json, and puts these bytes onto Kinesis using the
