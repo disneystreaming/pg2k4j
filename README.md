@@ -13,7 +13,7 @@ provision a replication slot in the postgres database through which it reads chu
 `SlotReaderKinesisWriter` may be subclassed and configured to fit any use case involving reading the postgres transaction log.
 By default `SlotReaderKinesisWriter` uses the [wal2json](https://github.com/eulerto/wal2json) output plugin to deserialize messages from the logical replication slot into
 `SlotMessage`s. The default implementation then writes out this class as json, and puts these bytes onto Kinesis using the
-[java KPL](https://github.com/awslabs/amazon-kinesis-producer/tree/master/java)
+[java KPL](https://github.com/awslabs/amazon-kinesis-producer/tree/master/java).
  
 When the KPL alerts the registered callback that it has successfully written to the stream, the registered callback will advance the LSN of the slot appropriately,
 freeing up disk space in the postgres instance. The LSN of a replication slot will also be advanced during periods of inactivity on its slot.
