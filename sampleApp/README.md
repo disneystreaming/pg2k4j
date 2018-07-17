@@ -90,3 +90,16 @@ select * from pg_replication_slots
 1	sampleappslot	wal2json	logical	16444	sampleApp	f	t	114618	null	5736302	30A/58000060	30A/58000098
 ```
 
+Now, to see this work create a table
+
+```sql
+CREATE TABLE sampleapptable(uid VARCHAR)
+insert into sampleapptable values('uid') 
+```
+
+This results in the following logs indicated we've successfully published to Kinesis
+
+```bash
+2018-07-17T14:19:13.451 TRACE [com.disney.pg2k4j.SlotReaderKinesisWriter] - Writing record with data {"xid":5736362,"change":[]} to stream
+2018-07-17T14:21:13.252 TRACE [com.disney.pg2k4j.SlotReaderKinesisWriter] - Writing record with data {"xid":5736364,"change":[{"kind":"insert","columnnames":["uid"],"columntypes":["character varying"],"table":"sampleapptable","columnvalues":["uid"],"schema":"public"}]} to stream
+```
