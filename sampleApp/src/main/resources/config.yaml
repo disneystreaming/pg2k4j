@@ -1,0 +1,7 @@
+pgHost: hostname
+pgDatabase: sampleApp
+pgUser: sampleApp
+pgPassword: sampleApp
+replicationSlotName: sampleAppSlot
+kinesisStreamName: pg2k4j-sampleApp
+region: us-east-1

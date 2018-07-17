@@ -8,13 +8,13 @@ import org.slf4j.LoggerFactory;
 
 public class SlotReaderCallback implements FutureCallback<UserRecordResult> {
 
-    private static final Logger logger = LoggerFactory.getLogger(SlotReaderKinesisWriter.class);
+    private static final Logger logger = LoggerFactory.getLogger(SlotReaderCallback.class);
 
     private final LogSequenceNumber lsn;
     private final PostgresConnector postgresConnector;
     private final SlotReaderKinesisWriter slotReaderKinesisWriter;
 
-    SlotReaderCallback(SlotReaderKinesisWriter slotReaderKinesisWriter, PostgresConnector postgresConnector) {
+    protected SlotReaderCallback(SlotReaderKinesisWriter slotReaderKinesisWriter, PostgresConnector postgresConnector) {
         this.slotReaderKinesisWriter = slotReaderKinesisWriter;
         this.postgresConnector = postgresConnector;
         this.lsn = postgresConnector.getLastReceivedLsn();

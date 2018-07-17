@@ -150,6 +150,7 @@ public class SlotReaderKinesisWriter {
         SlotMessage slotMessage = getSlotMessage(source, offset);
         getUserRecords(slotMessage).forEach(
                 userRecord -> {
+                    logger.trace("Writing record with data {} to stream", userRecord.getData().toString());
                     ListenableFuture<UserRecordResult> f = kinesisProducer.addUserRecord(userRecord);
                     final FutureCallback<UserRecordResult> callback = getCallback(postgresConnector);
                     Futures.addCallback(f, callback);

@@ -124,6 +124,7 @@ public class SlotReaderKinesisWriterTest {
     @Test
     public void testProcessByteBufferPutsOneToKinesisAddsCallbackPerUserRecord() throws Exception {
         PowerMockito.doCallRealMethod().when(slotReaderKinesisWriter, "processByteBuffer", byteBuffer, kinesisProducer, postgresConnector);
+        PowerMockito.doReturn(ByteBuffer.wrap(testByteArray)).when(userRecord).getData();
         Whitebox.invokeMethod(slotReaderKinesisWriter, "processByteBuffer", byteBuffer, kinesisProducer, postgresConnector);
         PowerMockito.verifyStatic(Futures.class,  Mockito.times(1)); // Verify that the following mock method was called exactly 1 time
         Futures.addCallback(future, callback);
