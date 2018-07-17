@@ -70,5 +70,23 @@ aws_secret_access_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 If you don't have any profiles configured, or want to run this command without a profile, omit the `AWS_PROFILE` setting.
 
 ```
-CONFIG_PATH=file://config.yaml AWS_PROFILE=myprofile AWS_CONFIG_FILE=/path/to/your/aws/creds/and/conf java -jar target/sampleApp-1.0-SNAPSHOT-jar-with-dependencies.jar
+CONFIG_PATH=file://${PWD}/src/main/resources/config.yaml AWS_PROFILE=myprofile AWS_CONFIG_FILE=/path/to/your/aws/creds/and/conf java -jar target/sampleApp-1.0-SNAPSHOT-jar-with-dependencies.jar
 ``` 
+
+You should see the following messages when the app starts up
+
+```bash
+2018-07-17T13:13:34.833 DEBUG [com.disney.pg2k4j.PostgresConnector] - Connected to postgres
+2018-07-17T13:13:34.834 INFO  [com.disney.pg2k4j.PostgresConnector] - Attempting to create replication slot sampleAppSlot
+2018-07-17T13:13:35.125 INFO  [com.disney.pg2k4j.PostgresConnector] - Created replication slot
+2018-07-17T13:13:35.591 INFO  [com.disney.pg2k4j.SlotReaderKinesisWriter] - Consuming from slot sampleAppSlot
+```
+
+You should be able to run the following query on postgres and get the following result
+
+```sql
+select * from pg_replication_slots
+
+1	sampleappslot	wal2json	logical	16444	sampleApp	f	t	114618	null	5736302	30A/58000060	30A/58000098
+```
+

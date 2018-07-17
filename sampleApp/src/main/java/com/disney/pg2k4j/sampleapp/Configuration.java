@@ -29,7 +29,7 @@ public class Configuration implements PostgresConfiguration, ReplicationConfigur
                     .setRegion(configurationSource.region);
             if (configurationSource.KINESIS_ENDPOINT_URL != null) {
                 // use localstack
-                final String[] endpointPort = KINESIS_ENDPOINT_URL.split(":");
+                final String[] endpointPort = configurationSource.KINESIS_ENDPOINT_URL.split(":");
                 kinesisProducerConfig.setKinesisEndpoint(endpointPort[endpointPort.length - 2].replace("/", ""))
                         .setKinesisPort(Long.valueOf(endpointPort[endpointPort.length - 1]))
                         .setVerifyCertificate(false);
