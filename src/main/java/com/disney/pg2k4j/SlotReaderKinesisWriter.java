@@ -148,16 +148,18 @@ public class SlotReaderKinesisWriter {
         int offset = msg.arrayOffset();
         byte[] source = msg.array();
         SlotMessage slotMessage = getSlotMessage(source, offset);
-        getUserRecords(slotMessage).forEach(
-                userRecord -> {
-                    if (logger.isTraceEnabled()) {
-                        logger.trace("Writing record with data {} to stream", new String(userRecord.getData().array()));
+        if (slotMessage.getChange().size() > 0) {
+            getUserRecords(slotMessage).forEach(
+                    userRecord -> {
+                        if (logger.isTraceEnabled()) {
+                            logger.trace("Writing record with data {} to stream", new String(userRecord.getData().array()));
+                        }
+                        ListenableFuture<UserRecordResult> f = kinesisProducer.addUserRecord(userRecord);
+                        final FutureCallback<UserRecordResult> callback = getCallback(postgresConnector);
+                        Futures.addCallback(f, callback);
                     }
-                    ListenableFuture<UserRecordResult> f = kinesisProducer.addUserRecord(userRecord);
-                    final FutureCallback<UserRecordResult> callback = getCallback(postgresConnector);
-                    Futures.addCallback(f, callback);
-                }
-        );
+            );
+        }
     }
 
     public void resetIdleCounter() {
