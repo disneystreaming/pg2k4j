@@ -59,7 +59,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>com.disney.pg2k4j.sampleapp.SampleSlotReaderKinesisWriter</mainClass>
+                            <mainClass>com.disney.pg2k4j.sampleapp.Pg2k4jRunner</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

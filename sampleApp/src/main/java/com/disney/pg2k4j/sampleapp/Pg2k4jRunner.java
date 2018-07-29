@@ -1,8 +1,5 @@
 package com.disney.pg2k4j.sampleapp;
 
-import com.amazonaws.services.kinesis.producer.UserRecordResult;
-import com.disney.pg2k4j.PostgresConnector;
-import com.disney.pg2k4j.SlotReaderCallback;
 import com.disney.pg2k4j.SlotReaderKinesisWriter;
 
 import java.io.IOException;
@@ -12,25 +9,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.google.common.util.concurrent.FutureCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
 
-public class SampleSlotReaderKinesisWriter extends SlotReaderKinesisWriter {
+public class Pg2k4jRunner {
 
-    private static final Logger logger = LoggerFactory.getLogger(SampleSlotReaderKinesisWriter.class);
+    private static final Logger logger = LoggerFactory.getLogger(Pg2k4jRunner.class);
     private static final String configPathEnvVariable = "CONFIG_PATH";
 
     public static void main(String[] args) throws IOException {
         final String configPath = System.getenv(configPathEnvVariable);
         final Configuration conf = loadConfigurationFromLocalFile(configPath);
-        new SampleSlotReaderKinesisWriter(conf).runLoop();
-    }
-
-    SampleSlotReaderKinesisWriter(Configuration conf) {
-        super(conf, conf, conf, conf.getStreamName());
+        new SlotReaderKinesisWriter(conf, conf, conf, conf.getStreamName()).runLoop();
     }
 
     private static Configuration loadConfigurationFromLocalFile(final String configUrl) throws IOException {
