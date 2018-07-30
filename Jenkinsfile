@@ -35,6 +35,7 @@ node("docker") {
         echo "${orgName}"
         echo  "${skip}"
         echo "${onMasterBranch}"
+        echo "${shouldRelease}"
             utils.kickoffMessage(slackChannel, slackTokenId)
             utils.ecrLogin()
         }
