@@ -32,10 +32,6 @@ node("docker") {
     def version = null
     lock("Models -- ${env.BRANCH_NAME}") {
         stage('Setup') {
-        echo "${orgName}"
-        echo  "${skip}"
-        echo "${onMasterBranch}"
-        echo "${shouldRelease}"
             utils.kickoffMessage(slackChannel, slackTokenId)
             utils.ecrLogin()
         }
