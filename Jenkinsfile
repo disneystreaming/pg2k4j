@@ -30,7 +30,7 @@ node("docker") {
     def inOrg = "${orgName}" == "personalization"
     def shouldRelease = !skip && onMasterBranch && inOrg
     def version = null
-    lock("Models -- ${env.BRANCH_NAME}") {
+    lock("pg2k4j -- ${env.BRANCH_NAME}") {
         stage('Setup') {
             utils.kickoffMessage(slackChannel, slackTokenId)
             utils.ecrLogin()

@@ -11,6 +11,6 @@ ENTRYPOINT ["mvn"]
 CMD ["clean"]
 
 # A few examples of what to do :
-# docker build . -t models
-# docker run -w /src models test
-# docker run -w /src models deploy
+# docker build . -t pg2k4j
+# docker run -w /src pg2k4j test
+# docker run -w /src pg2k4j deploy
