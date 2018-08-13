@@ -23,7 +23,7 @@ During these times, the WAL is still being populated with data, but this data is
 
 Note that the provided default configurations have been load tested and are being used in production. 
 
-## Using
+## Getting Started
 
 Refer to the [sample app](https://github.bamtech.co/personalization/pg2k4j/tree/master/sampleApp) for getting started.
 To include this in a current project use the following maven snippet
@@ -32,7 +32,7 @@ To include this in a current project use the following maven snippet
 <dependency>
     <groupId>com.disney.pg2k4j</groupId>
     <artifactId>pg2k4j</artifactId>
-    <version>1.0.8</version>
+    <version>1.0.13</version>
 </dependency>
 ```
 
@@ -46,5 +46,7 @@ Be sure that tests pass and that any new code introduced has corresponding unit 
 Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
 ```
 
-Submit a pr with a description detailing what this code does, and what bug or feature it addresses. Any methods
+1. Submit a pr with a description detailing what this code does, and what bug or feature it addresses. Any methods
 containing substantial logic should include javadocs.
+
+2. Contributors are required to fill out a CLA in order for us to be allowed to accept contributions. See [CLA-Individual](CLA-Individual.md) or [CLA-Corporate](CLA-Corporate.md) for details.
