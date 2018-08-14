@@ -30,7 +30,7 @@ To include this in a current project use the following maven snippet
 <dependency>
     <groupId>com.disney.pg2k4j</groupId>
     <artifactId>pg2k4j</artifactId>
-    <version>1.0.13</version>
+    <version>1.0.12</version>
 </dependency>
 ```
 
