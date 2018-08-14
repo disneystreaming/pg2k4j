@@ -25,7 +25,7 @@ Note that the provided default configurations have been load tested and are bein
 
 ## Getting Started
 
-Refer to the [sample app](https://github.bamtech.co/personalization/pg2k4j/tree/master/sampleApp) for getting started.
+Refer to the [sample app](sampleApp) for getting started.
 To include this in a current project use the following maven snippet
 
 ```
@@ -39,7 +39,7 @@ To include this in a current project use the following maven snippet
 
 ## Contributing
 
-Be sure that tests pass and that any new code introduced has corresponding unit tests. Run tests with 
+Be sure that tests pass and that any new code introduced has corresponding [unit tests](src/test/java/com/disney/pg2k4j). Run tests with 
 
 ```bash
 >> mvn clean test

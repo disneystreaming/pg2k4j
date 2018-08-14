@@ -17,7 +17,7 @@ This license is for your protection as a Contributor as well as the protection o
 	10011 
 	USA
 
-	E-Mail: pg2k4j@bamtechmedia.com
+	E-Mail: pg2k4j@disney.com
 
 Please read this document carefully before signing and keep a copy for your records.
 

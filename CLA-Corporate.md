@@ -19,7 +19,7 @@ If you have not already done so, please complete and sign, and mail or scan and 
 	10011 
 	USA
 
-	E-Mail: pg2k4j@bamtechmedia.com
+	E-Mail: pg2k4j@disney.com
 
 Please read this document carefully before signing and keep a copy for your records.
 
