@@ -1,7 +1,7 @@
 # pg2k4j
 
 ## Overview
-pg2k4j uses [logical decoding](https://www.postgresql.org/docs/9.4/static/logicaldecoding.html) to capture a continuous stream of events from a postgres database and publishes them to an [AWS Kinesis](https://aws.amazon.com/kinesis/) stream.
+pg2k4j uses [logical decoding](https://www.postgresql.org/docs/9.4/static/logicaldecoding.html) to capture a continuous stream of events from a Postgres database and publishes them to an [AWS Kinesis](https://aws.amazon.com/kinesis/) stream.
 It does this without requiring any changes to your data models, and guarantees each record is published to kinesis at least once.
 It is only in rare cases of database reboots and process crashes that records may be published more than once.
 
