@@ -56,7 +56,7 @@ public class PostgresConnector implements AutoCloseable {
      * @param replicationConfiguration
      * @throws SQLException
      */
-    public PostgresConnector(PostgresConfiguration postgresConfiguration, ReplicationConfiguration replicationConfiguration) throws SQLException {
+    PostgresConnector(PostgresConfiguration postgresConfiguration, ReplicationConfiguration replicationConfiguration) throws SQLException {
         logger.debug("Connecting to {}", postgresConfiguration.getUrl());
         queryConnection = DriverManager.getConnection(postgresConfiguration.getUrl(), postgresConfiguration.getQueryConnectionProperties());
         streamingConnection = DriverManager.getConnection(postgresConfiguration.getUrl(), postgresConfiguration.getReplicationProperties());
