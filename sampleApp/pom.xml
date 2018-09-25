@@ -7,7 +7,7 @@
         <java.version>1.8</java.version>
         <snakeyaml.version>1.11</snakeyaml.version>
         <slf4j.Version>1.7.25</slf4j.Version>
-        <pg2k4j.version>1.0.8</pg2k4j.version>
+        <pg2k4j.version>LATEST</pg2k4j.version>
         <aws.version>1.11.358</aws.version>
     </properties>
 
