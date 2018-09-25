@@ -44,7 +44,7 @@ selecting `Postgresql` for the DB engine and `Postgresql 10.3-R1` for the DB eng
 
 As shown below, associate the parameter group you created in the previous step with this instance.
 
-![Associate Parameter Group](https://github.bamtech.co/personalization/pg2k4j/blob/master/sampleApp/associateParameterGroup.png)
+![Associate Parameter Group](https://github.bamtech.co/personalization/pg2k4j/blob/master/sampleApp/associateParamGroup.png)
 
 ## Run Jar
 
