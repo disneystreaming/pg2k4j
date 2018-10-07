@@ -1,11 +1,13 @@
 sudo: required
 
 env:
-  - dockerTag=postgres
+  - dockerTag=pg2k4j
 
 services:
   - docker
 
+
+
 script:
-  - docker build -t pg24j .
-  - docker run -w /src ${dockerTag} clean test
+  - docker build -t $pg24j .
+  - docker run -w /src $dockerTag clean test
