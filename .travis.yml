@@ -9,5 +9,5 @@ services:
 
 
 script:
-  - docker build -t $pg24j .
+  - docker build -t $dockerTag .
   - docker run -w /src $dockerTag clean test
