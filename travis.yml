@@ -1,0 +1,9 @@
+sudo: required
+
+language: java
+
+services:
+  - docker
+
+script:
+  - docker build -t pg24j .
