@@ -1,3 +1,6 @@
+
+[![Build Status](https://travis-ci.com/disney-streaming-services/pg2k4j.svg?branch=master)](https://travis-ci.com/disney-streaming-services/pg2k4j)
+
 # pg2k4j
 
 ## Overview

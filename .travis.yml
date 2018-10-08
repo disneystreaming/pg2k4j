@@ -1,0 +1,13 @@
+sudo: required
+
+env:
+  - dockerTag=pg2k4j
+
+services:
+  - docker
+
+language: java
+
+script:
+  - docker build -t $dockerTag .
+  - docker run -w /src $dockerTag clean test
