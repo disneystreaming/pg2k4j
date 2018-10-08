@@ -6,7 +6,7 @@ env:
 services:
   - docker
 
-
+language: java
 
 script:
   - docker build -t $dockerTag .
