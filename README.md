@@ -1,4 +1,5 @@
-# pg2k4j
+
+[![Build Status](https://travis-ci.com/disney-streaming-services/pg2k4j.svg?branch=master)](https://travis-ci.com/disney-streaming-services/pg2k4j)# pg2k4j
 
 ## Overview
 pg2k4j uses [logical decoding](https://www.postgresql.org/docs/9.4/static/logicaldecoding.html) to capture a continuous stream of events from a Postgres database and publishes them to an [AWS Kinesis](https://aws.amazon.com/kinesis/) stream.
