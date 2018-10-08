@@ -64,7 +64,11 @@ public class SlotReaderCallback implements FutureCallback<UserRecordResult> {
     public void onSuccess(UserRecordResult result) {
         if (logger.isTraceEnabled()) {
             logger.trace("Setting stream last applied and last flush lsn to {}", lsn);
-            logger.trace("Successfully Put record on stream {}", new String(userRecord.getData().array()));
+            logger.trace("Successfully Put record on stream {} to shard {} with sequence number {} after {} attempts",
+                    new String(userRecord.getData().array()),
+                    result.getShardId(),
+                    result.getSequenceNumber(),
+                    result.getAttempts().size());
         }
         postgresConnector.setStreamLsn(lsn);
         slotReaderKinesisWriter.resetIdleCounter();
