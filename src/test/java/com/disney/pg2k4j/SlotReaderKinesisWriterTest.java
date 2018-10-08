@@ -131,7 +131,7 @@ public class SlotReaderKinesisWriterTest {
         PowerMockito.doReturn(testByteArray).when(byteBuffer).array();
         PowerMockito.doReturn(testByteBufferOffset).when(byteBuffer).arrayOffset();
         PowerMockito.doReturn(Stream.of(userRecord)).when(slotReaderKinesisWriter, "getUserRecords", slotMessage);
-        PowerMockito.doReturn(callback).when(slotReaderKinesisWriter, "getCallback", postgresConnector);
+        PowerMockito.doReturn(callback).when(slotReaderKinesisWriter, "getCallback", postgresConnector, userRecord);
         PowerMockito.doReturn(slotMessage).when(slotReaderKinesisWriter, "getSlotMessage", testByteArray, testByteBufferOffset);
         PowerMockito.doReturn(future).when(kinesisProducer).addUserRecord(userRecord);
         PowerMockito.doReturn(pgReplicationStream).when(postgresConnector).getPgReplicationStream();
@@ -153,7 +153,7 @@ public class SlotReaderKinesisWriterTest {
         Whitebox.invokeMethod(slotReaderKinesisWriter, "processByteBuffer", byteBuffer, kinesisProducer, postgresConnector);
         PowerMockito.verifyStatic(Futures.class,  Mockito.times(1)); // Verify that the following mock method was called exactly 1 time
         Futures.addCallback(future, callback);
-        PowerMockito.verifyPrivate(slotReaderKinesisWriter, Mockito.times(1)).invoke("getCallback", postgresConnector);
+        PowerMockito.verifyPrivate(slotReaderKinesisWriter, Mockito.times(1)).invoke("getCallback", postgresConnector, userRecord);
     }
 
     @Test

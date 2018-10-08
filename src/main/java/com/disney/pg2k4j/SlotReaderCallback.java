@@ -26,6 +26,7 @@
 package com.disney.pg2k4j;
 
 import com.amazonaws.services.kinesis.producer.Attempt;
+import com.amazonaws.services.kinesis.producer.UserRecord;
 import com.amazonaws.services.kinesis.producer.UserRecordFailedException;
 import com.amazonaws.services.kinesis.producer.UserRecordResult;
 import com.google.common.collect.Iterables;
@@ -41,11 +42,13 @@ public class SlotReaderCallback implements FutureCallback<UserRecordResult> {
     private final LogSequenceNumber lsn;
     private final PostgresConnector postgresConnector;
     private final SlotReaderKinesisWriter slotReaderKinesisWriter;
+    private final UserRecord userRecord;
 
-    protected SlotReaderCallback(SlotReaderKinesisWriter slotReaderKinesisWriter, PostgresConnector postgresConnector) {
+    protected SlotReaderCallback(SlotReaderKinesisWriter slotReaderKinesisWriter, PostgresConnector postgresConnector, UserRecord userRecord) {
         this.slotReaderKinesisWriter = slotReaderKinesisWriter;
         this.postgresConnector = postgresConnector;
         this.lsn = postgresConnector.getLastReceivedLsn();
+        this.userRecord = userRecord;
     }
 
     @Override
@@ -59,7 +62,10 @@ public class SlotReaderCallback implements FutureCallback<UserRecordResult> {
 
     @Override
     public void onSuccess(UserRecordResult result) {
-        logger.trace("Setting stream last applied and last flush lsn to {}", lsn);
+        if (logger.isTraceEnabled()) {
+            logger.trace("Setting stream last applied and last flush lsn to {}", lsn);
+            logger.trace("Successfully Put record on stream {}", new String(userRecord.getData().array()));
+        }
         postgresConnector.setStreamLsn(lsn);
         slotReaderKinesisWriter.resetIdleCounter();
     }

@@ -180,7 +180,7 @@ public class SlotReaderKinesisWriter {
                             logger.trace("Writing record with data {} to stream", new String(userRecord.getData().array()));
                         }
                         ListenableFuture<UserRecordResult> f = kinesisProducer.addUserRecord(userRecord);
-                        final FutureCallback<UserRecordResult> callback = getCallback(postgresConnector);
+                        final FutureCallback<UserRecordResult> callback = getCallback(postgresConnector, userRecord);
                         Futures.addCallback(f, callback);
                     }
             );
@@ -202,8 +202,8 @@ public class SlotReaderKinesisWriter {
         );
     }
 
-    protected FutureCallback<UserRecordResult> getCallback(PostgresConnector postgresConnector) {
-        return new SlotReaderCallback(this, postgresConnector);
+    protected FutureCallback<UserRecordResult> getCallback(PostgresConnector postgresConnector, UserRecord userRecord) {
+        return new SlotReaderCallback(this, postgresConnector, userRecord);
     }
 
     protected SlotMessage getSlotMessage(byte[] walChunk, int offset) throws IOException {
