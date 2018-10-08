@@ -33,21 +33,16 @@ import com.disney.pg2k4j.models.Change;
 import com.disney.pg2k4j.models.SlotMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.postgresql.replication.LogSequenceNumber;
 import org.postgresql.replication.PGReplicationStream;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import java.io.IOException;
@@ -81,9 +76,6 @@ public class SlotReaderKinesisWriterTest {
 
     @Mock
     private KinesisProducer kinesisProducer;
-//
-//    @Mock
-//    private ByteBuffer byteBuffer;
 
     private ByteBuffer byteBuffer = ByteBuffer.wrap(testByteArray);
 
@@ -127,8 +119,6 @@ public class SlotReaderKinesisWriterTest {
 
     @Before
     public void setUp() throws Exception {
-//        PowerMockito.mockStatic(Futures.class);
-//        PowerMockito.mockStatic(Thread.class);
         Whitebox.setInternalState(slotReaderKinesisWriter, "replicationConfiguration", replicationConfiguration);
         Whitebox.setInternalState(slotReaderKinesisWriter, "postgresConfiguration", postgresConfiguration);
         Whitebox.setInternalState(slotReaderKinesisWriter, "kinesisProducerConfiguration", kinesisProducerConfiguration);
@@ -154,7 +144,7 @@ public class SlotReaderKinesisWriterTest {
     @Test
     public void testProcessByteBufferPutsOneToKinesisAddsCallbackPerUserRecord() throws Exception {
         Mockito.doCallRealMethod().when(slotReaderKinesisWriter).processByteBuffer(byteBuffer, kinesisProducer, postgresConnector);
-        PowerMockito.doReturn(ByteBuffer.wrap(testByteArray)).when(userRecord).getData();
+        Mockito.doReturn(ByteBuffer.wrap(testByteArray)).when(userRecord).getData();
         slotReaderKinesisWriter.processByteBuffer(byteBuffer, kinesisProducer, postgresConnector);
         Mockito.verify(slotReaderKinesisWriter, Mockito.times(1)).getCallback(postgresConnector, userRecord);
     }
