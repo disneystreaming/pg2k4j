@@ -152,7 +152,7 @@ public class PostgresConnector implements AutoCloseable {
      * @param pgReplicationConnection
      * @throws SQLException
      */
-    private PGReplicationStream getPgReplicationStream(ReplicationConfiguration replicationConfiguration, PGReplicationConnection pgReplicationConnection) throws SQLException {
+    PGReplicationStream getPgReplicationStream(ReplicationConfiguration replicationConfiguration, PGReplicationConnection pgReplicationConnection) throws SQLException {
         boolean listening = false;
         int tries = replicationConfiguration.getExisitingProcessRetryLimit();
         PGReplicationStream pgReplicationStream = null;
@@ -185,7 +185,7 @@ public class PostgresConnector implements AutoCloseable {
         return pgReplicationStream;
     }
 
-    private PGReplicationStream getPgReplicationStreamHelper(ReplicationConfiguration replicationConfiguration, PGReplicationConnection pgReplicationConnection) throws SQLException{
+    PGReplicationStream getPgReplicationStreamHelper(ReplicationConfiguration replicationConfiguration, PGReplicationConnection pgReplicationConnection) throws SQLException{
         return pgReplicationConnection.replicationStream().logical()
                 .withStatusInterval(replicationConfiguration.getStatusIntervalValue(), replicationConfiguration.getStatusIntervalTimeUnit())
                 .withSlotOptions(replicationConfiguration.getSlotOptions())

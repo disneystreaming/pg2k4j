@@ -31,6 +31,8 @@
 		<postgres.version>42.2.2</postgres.version>
 		<junit.version>4.11</junit.version>
 		<powermock.version>1.7.3</powermock.version>
+		<jacoco.version>0.7.6.201602180812</jacoco.version>
+		<coveralls.version>4.3.0</coveralls.version>
 	</properties>
 
 	<dependencies>
@@ -85,6 +87,7 @@
 			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -108,6 +111,27 @@
 						<include>**/*Tests.java</include>
 						<include>**/*TestCase.java</include>
 					</includes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eluder.coveralls</groupId>
+				<artifactId>coveralls-maven-plugin</artifactId>
+				<version>${coveralls.version}</version>
+				<configuration>
+					<repoToken>${env.COVERALLS_TOKEN}</repoToken>
 				</configuration>
 			</plugin>
 		</plugins>
