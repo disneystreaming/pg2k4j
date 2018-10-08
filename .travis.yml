@@ -10,4 +10,4 @@ language: java
 
 script:
   - docker build -t $dockerTag .
-  - docker run -w /src $dockerTag clean test jacoco:report coveralls:report
+  - docker run -e COVERALLS_TOKEN=$COVERALLS_TOKEN -w /src $dockerTag clean test jacoco:report coveralls:report
