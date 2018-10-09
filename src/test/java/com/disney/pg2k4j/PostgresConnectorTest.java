@@ -45,6 +45,7 @@ import org.postgresql.util.PSQLException;
 import org.postgresql.util.PSQLState;
 import org.powermock.api.mockito.PowerMockito;
 
+import java.nio.ByteBuffer;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -225,6 +226,40 @@ public class PostgresConnectorTest {
         Mockito.doThrow(sqlException).when(streamingConnection).close();
         Mockito.doThrow(sqlException).when(queryConnection).close();
         testClose();
+    }
+
+    @Test
+    public void testGetLastReceivedLsn() throws Exception {
+        Mockito.doReturn(LogSequenceNumber.valueOf(lsn)).when(pgReplicationStream).getLastReceiveLSN();
+        Whitebox.setInternalState(postgresConnector, "pgReplicationStream", pgReplicationStream);
+        Mockito.doCallRealMethod().when(postgresConnector).getLastReceivedLsn();
+        assertEquals(postgresConnector.getLastReceivedLsn().asString(), lsn);
+    }
+
+    @Test
+    public void testSetStreamLsn() throws Exception {
+        LogSequenceNumber logSequenceNumber = LogSequenceNumber.valueOf(lsn);
+        Whitebox.setInternalState(postgresConnector, "pgReplicationStream", pgReplicationStream);
+        Mockito.doCallRealMethod().when(postgresConnector).setStreamLsn(logSequenceNumber);
+        postgresConnector.setStreamLsn(logSequenceNumber);
+        Mockito.verify(pgReplicationStream, Mockito.times(1)).setAppliedLSN(logSequenceNumber);
+        Mockito.verify(pgReplicationStream, Mockito.times(1)).setFlushedLSN(logSequenceNumber);
+    }
+
+    @Test
+    public void testGetPGReplicationStream() throws Exception {
+        Mockito.doCallRealMethod().when(postgresConnector).getPgReplicationStream();
+        Whitebox.setInternalState(postgresConnector, "pgReplicationStream", pgReplicationStream);
+        assertEquals(postgresConnector.getPgReplicationStream(), pgReplicationStream);
+    }
+
+    @Test
+    public void testGetPGReplicationStreamByteBuffer() throws Exception {
+        ByteBuffer byteBuffer = ByteBuffer.wrap("x".getBytes());
+        Mockito.doCallRealMethod().when(postgresConnector).readPending();
+        Mockito.doReturn(byteBuffer).when(pgReplicationStream).readPending();
+        Whitebox.setInternalState(postgresConnector, "pgReplicationStream", pgReplicationStream);
+        assertEquals(postgresConnector.readPending(), byteBuffer);
     }
 
     private void testClose() throws Exception {
