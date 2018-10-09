@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.sql.*;
+import java.util.Properties;
 
 public class PostgresConnector implements AutoCloseable {
 
@@ -58,8 +59,8 @@ public class PostgresConnector implements AutoCloseable {
      */
     PostgresConnector(PostgresConfiguration postgresConfiguration, ReplicationConfiguration replicationConfiguration) throws SQLException {
         logger.debug("Connecting to {}", postgresConfiguration.getUrl());
-        queryConnection = DriverManager.getConnection(postgresConfiguration.getUrl(), postgresConfiguration.getQueryConnectionProperties());
-        streamingConnection = DriverManager.getConnection(postgresConfiguration.getUrl(), postgresConfiguration.getReplicationProperties());
+        queryConnection = createConnection(postgresConfiguration.getUrl(), postgresConfiguration.getQueryConnectionProperties());
+        streamingConnection = createConnection(postgresConfiguration.getUrl(), postgresConfiguration.getReplicationProperties());
         logger.debug("Connected to postgres");
         PGConnection pgConnection = streamingConnection.unwrap(PGConnection.class);
         PGReplicationConnection pgReplicationConnection = pgConnection.getReplicationAPI();
@@ -190,5 +191,9 @@ public class PostgresConnector implements AutoCloseable {
                 .withStatusInterval(replicationConfiguration.getStatusIntervalValue(), replicationConfiguration.getStatusIntervalTimeUnit())
                 .withSlotOptions(replicationConfiguration.getSlotOptions())
                 .withSlotName(replicationConfiguration.getSlotName()).start();
+    }
+
+    Connection createConnection(String url, Properties properties) throws SQLException {
+        return DriverManager.getConnection(url, properties);
     }
 }

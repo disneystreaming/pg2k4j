@@ -30,14 +30,22 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.internal.util.reflection.Whitebox;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
+import org.postgresql.PGConnection;
 import org.postgresql.replication.PGReplicationConnection;
 import org.postgresql.replication.PGReplicationStream;
+import org.postgresql.replication.fluent.ChainedCreateReplicationSlotBuilder;
+import org.postgresql.replication.fluent.logical.ChainedLogicalCreateSlotBuilder;
 import org.postgresql.util.PSQLException;
 import org.postgresql.util.PSQLState;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -55,16 +63,50 @@ public class PostgresConnectorTest {
     @Mock
     PGReplicationStream pgReplicationStream;
 
+    @Mock
+    ChainedCreateReplicationSlotBuilder chainedCreateReplicationSlotBuilder;
+
+    @Mock
+    ChainedLogicalCreateSlotBuilder chainedLogicalCreateSlotBuilder;
+
+    @Mock
+    PGConnection pgConnection;
+
+    @Mock
+    private PostgresConfiguration postgresConfiguration;
+
+    @Mock
+    private Connection queryConnection;
+
+    @Mock
+    private Connection streamingConnection;
+
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
+    private static final String outputPlugin = "wal2json";
+    private static final String slotName = "slotName";
     private static final int tries = 2;
+    private static final String postgresUrl = "postgresUrl";
+    private static final Properties queryConnectionProperties = new Properties();
+    private static final Properties replicationConnectionProperties = new Properties();
     private static final int sleepSeconds = 1;
     private static final PSQLException psqlException = new PSQLException("psqlException", PSQLState.OBJECT_IN_USE);
     private static final PSQLException uncaughtPsqlException = new PSQLException("psqlException", PSQLState.INVALID_CURSOR_STATE);
 
     @Before
     public void setUp() throws Exception {
+        Mockito.doReturn(slotName).when(replicationConfiguration).getSlotName();
+        Mockito.doReturn(outputPlugin).when(replicationConfiguration).getOutputPlugin();
+        Mockito.doReturn(chainedCreateReplicationSlotBuilder).when(pgReplicationConnection).createReplicationSlot();
+        Mockito.doReturn(chainedLogicalCreateSlotBuilder).when(chainedCreateReplicationSlotBuilder).logical();
+        Mockito.doReturn(chainedLogicalCreateSlotBuilder).when(chainedLogicalCreateSlotBuilder).withOutputPlugin(outputPlugin);
+        Mockito.doReturn(chainedLogicalCreateSlotBuilder).when(chainedLogicalCreateSlotBuilder).withSlotName(slotName);
+        Mockito.doReturn(pgReplicationConnection).when(pgConnection).getReplicationAPI();
+        Mockito.doReturn(pgConnection).when(streamingConnection).unwrap(PGConnection.class);
+        Mockito.doReturn(postgresUrl).when(postgresConfiguration).getUrl();
+        Mockito.doReturn(queryConnectionProperties).when(postgresConfiguration).getQueryConnectionProperties();
+        Mockito.doReturn(replicationConnectionProperties).when(postgresConfiguration).getReplicationProperties();
         Mockito.doReturn(tries).when(replicationConfiguration).getExisitingProcessRetryLimit();
         Mockito.doReturn(sleepSeconds).when(replicationConfiguration).getExistingProcessRetrySleepSeconds();
         Mockito.doCallRealMethod().when(postgresConnector).getPgReplicationStream(replicationConfiguration, pgReplicationConnection);
@@ -121,6 +163,46 @@ public class PostgresConnectorTest {
         assertTrue(thrown);
         assertNull(localPgReplicationStream);
         Mockito.verify(postgresConnector, Mockito.times(1)).getPgReplicationStreamHelper(replicationConfiguration, pgReplicationConnection);
+    }
+
+    @Test
+    public void testConstructor() throws Exception {
+        PostgresConnector postgresConnector = new MockPostgresConnector(postgresConfiguration, replicationConfiguration);
+        assertEquals(Whitebox.getInternalState(postgresConnector, "queryConnection"), queryConnection);
+        assertEquals(Whitebox.getInternalState(postgresConnector, "streamingConnection"), streamingConnection);
+        assertEquals(Whitebox.getInternalState(postgresConnector, "pgReplicationStream"), pgReplicationStream);
+        Mockito.verify(pgReplicationConnection, Mockito.times(1)).createReplicationSlot();
+        Mockito.verify(chainedCreateReplicationSlotBuilder, Mockito.times(1)).logical();
+        Mockito.verify(chainedLogicalCreateSlotBuilder, Mockito.times(1)).withOutputPlugin(outputPlugin);
+        Mockito.verify(chainedLogicalCreateSlotBuilder, Mockito.times(1)).withSlotName(slotName);
+        assertEquals(Whitebox.getInternalState(postgresConnector, "queryConnection"), queryConnection);
+    }
+
+    class MockPostgresConnector extends PostgresConnector {
+
+        MockPostgresConnector(PostgresConfiguration postgresConfiguration, ReplicationConfiguration replicationConfiguration) throws SQLException {
+            super(postgresConfiguration, replicationConfiguration);
+        }
+
+        @Override
+        Connection createConnection(String url, Properties properties) throws SQLException {
+            if (properties == queryConnectionProperties) {
+                return queryConnection;
+            }
+            else if (properties == replicationConnectionProperties) {
+                return streamingConnection;
+            }
+            throw new RuntimeException("Unrecognized properties");
+        }
+
+        @Override
+        PGReplicationStream getPgReplicationStream(ReplicationConfiguration replicationConfiguration, PGReplicationConnection pgReplicationConnection) {
+            if (replicationConfiguration == PostgresConnectorTest.this.replicationConfiguration &&
+                    pgReplicationConnection == PostgresConnectorTest.this.pgReplicationConnection) {
+                return pgReplicationStream;
+            }
+            throw new RuntimeException("Unrecognized inputs");
+        }
     }
 
 }

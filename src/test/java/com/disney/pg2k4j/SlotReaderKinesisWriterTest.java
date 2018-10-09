@@ -46,11 +46,9 @@ import org.powermock.reflect.Whitebox;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -274,4 +272,5 @@ public class SlotReaderKinesisWriterTest {
         Mockito.verify(kinesisProducer, Mockito.times(1)).flushSync();
         Mockito.verify(kinesisProducer, Mockito.times(1)).destroy();
     }
+
 }
