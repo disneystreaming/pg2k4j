@@ -1,5 +1,5 @@
 
-[![Build Status](https://travis-ci.com/disney-streaming-services/pg2k4j.svg?branch=master)](https://travis-ci.com/disney-streaming-services/pg2k4j) [![Coverage Status](https://coveralls.io/repos/github/disney-streaming-services/pg2k4j/badge.svg?branch=master)](https://coveralls.io/github/disney-streaming-services/pg2k4j?branch=master)
+[![Build Status](https://travis-ci.com/disney-streaming-services/pg2k4j.svg?branch=master)](https://travis-ci.com/disney-streaming-services/pg2k4j) [![Coverage Status](https://coveralls.io/repos/github/disney-streaming-services/pg2k4j/badge.svg)](https://coveralls.io/github/disney-streaming-services/pg2k4j)
 
 # pg2k4j
 
