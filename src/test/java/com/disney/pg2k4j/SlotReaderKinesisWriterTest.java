@@ -46,7 +46,6 @@ import org.powermock.reflect.Whitebox;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -257,6 +256,25 @@ public class SlotReaderKinesisWriterTest {
         assertEquals(Whitebox.getInternalState(slotReaderKinesisWriter, "replicationConfiguration"), replicationConfiguration);
         assertEquals(Whitebox.getInternalState(slotReaderKinesisWriter, "kinesisProducerConfiguration"), kinesisProducerConfiguration);
         assertEquals(Whitebox.getInternalState(slotReaderKinesisWriter, "streamName"), streamName);
+    }
+
+    @Test
+    public void testGetCallback() throws Exception {
+        Mockito.doReturn(lsn).when(postgresConnector).getLastReceivedLsn();
+        Mockito.doCallRealMethod().when(slotReaderKinesisWriter).getCallback(postgresConnector, userRecord);
+        SlotReaderCallback slotReaderCallback = (SlotReaderCallback) slotReaderKinesisWriter.getCallback(postgresConnector, userRecord);
+        assertEquals(Whitebox.getInternalState(slotReaderCallback, "slotReaderKinesisWriter"), slotReaderKinesisWriter);
+        assertEquals(Whitebox.getInternalState(slotReaderCallback, "postgresConnector"), postgresConnector);
+        assertEquals(Whitebox.getInternalState(slotReaderCallback, "lsn"), lsn);
+        assertEquals(Whitebox.getInternalState(slotReaderCallback, "userRecord"), userRecord);
+    }
+
+    @Test
+    public void testResetIdleCounter() throws Exception {
+        Mockito.doCallRealMethod().when(slotReaderKinesisWriter).resetIdleCounter();
+        assertEquals((long) Whitebox.getInternalState(slotReaderKinesisWriter, "lastFlushedTime"), 0);
+        slotReaderKinesisWriter.resetIdleCounter();
+        assert((long) Whitebox.getInternalState(slotReaderKinesisWriter, "lastFlushedTime") > 0);
     }
 
     private void testReadSlotWriteToKinesisException(Exception e) throws Exception {
