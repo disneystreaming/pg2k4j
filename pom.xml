@@ -125,6 +125,13 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<excludes>
+						<exclude>**/models/*</exclude>
+						<exclude>**/*Callback*</exclude>
+						<exclude>**/*Configuration*</exclude>
+					</excludes>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eluder.coveralls</groupId>
