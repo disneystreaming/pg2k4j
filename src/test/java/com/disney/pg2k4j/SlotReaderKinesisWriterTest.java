@@ -29,8 +29,7 @@ import com.amazonaws.services.kinesis.producer.KinesisProducer;
 import com.amazonaws.services.kinesis.producer.KinesisProducerConfiguration;
 import com.amazonaws.services.kinesis.producer.UserRecord;
 import com.amazonaws.services.kinesis.producer.UserRecordResult;
-import com.disney.pg2k4j.models.Change;
-import com.disney.pg2k4j.models.SlotMessage;
+import com.disney.pg2k4j.models.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -52,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static junit.framework.TestCase.assertEquals;
@@ -116,6 +116,9 @@ public class SlotReaderKinesisWriterTest {
     private static final byte[] testByteArray = "testByteArray".getBytes();
     private static final String correctTableName = "correctTableName";
     private static final String incorrectTableName = "incorrectTableName";
+    private static final SlotMessage testSlotMessage = new SlotMessage(123,
+            Arrays.asList(new DeleteChange("delete", "testTable", "mySchema",
+                    new OldKeys(Arrays.asList("type"), Arrays.asList("value"), Arrays.asList("name")))));
 
     @Before
     public void setUp() throws Exception {
@@ -231,6 +234,17 @@ public class SlotReaderKinesisWriterTest {
         SlotMessage slotMessage = slotReaderKinesisWriter.getSlotMessage(testByteArray, testByteBufferOffset);
         assertEquals(slotMessage.getChange().size(), 1);
         assertEquals(slotMessage.getChange().get(0), change1);
+    }
+
+    @Test
+    public void testGetUserRecordsReturnsOneUserRecordWithSlotMessageDataAndCorrectStreamName() throws Exception {
+        Mockito.doCallRealMethod().when(slotReaderKinesisWriter).getUserRecords(testSlotMessage);
+        ObjectMapper realObjectMapper = new ObjectMapper();
+        Whitebox.setInternalState(SlotReaderKinesisWriter.class, "objectMapper", realObjectMapper);
+        List<UserRecord> userRecords = slotReaderKinesisWriter.getUserRecords(testSlotMessage).collect(Collectors.toList());
+        assertEquals(userRecords.size(), 1);
+        SlotMessage slotMessage = realObjectMapper.readValue(userRecords.get(0).getData().array(), SlotMessage.class);
+        assertEquals(slotMessage.getXid(), testSlotMessage.getXid());
     }
 
     private void testReadSlotWriteToKinesisException(Exception e) throws Exception {
