@@ -42,6 +42,7 @@ import org.postgresql.replication.fluent.ChainedCreateReplicationSlotBuilder;
 import org.postgresql.replication.fluent.logical.ChainedLogicalCreateSlotBuilder;
 import org.postgresql.util.PSQLException;
 import org.postgresql.util.PSQLState;
+import org.powermock.api.mockito.PowerMockito;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -80,6 +81,9 @@ public class PostgresConnectorTest {
 
     @Mock
     private Connection streamingConnection;
+
+    @Mock
+    private SQLException sqlException;
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
@@ -166,7 +170,18 @@ public class PostgresConnectorTest {
     }
 
     @Test
-    public void testConstructor() throws Exception {
+    public void testConstructorSuccess() throws Exception {
+        testConstructor();
+    }
+
+    @Test
+    public void testConstructorSlotAlreadyExists() throws Exception {
+        PowerMockito.doThrow(sqlException).when(chainedLogicalCreateSlotBuilder).make();
+        PowerMockito.doReturn("42710").when(sqlException).getSQLState();
+        testConstructor();
+}
+
+    private void testConstructor() throws Exception {
         PostgresConnector postgresConnector = new MockPostgresConnector(postgresConfiguration, replicationConfiguration);
         assertEquals(Whitebox.getInternalState(postgresConnector, "queryConnection"), queryConnection);
         assertEquals(Whitebox.getInternalState(postgresConnector, "streamingConnection"), streamingConnection);
@@ -176,6 +191,7 @@ public class PostgresConnectorTest {
         Mockito.verify(chainedLogicalCreateSlotBuilder, Mockito.times(1)).withOutputPlugin(outputPlugin);
         Mockito.verify(chainedLogicalCreateSlotBuilder, Mockito.times(1)).withSlotName(slotName);
         assertEquals(Whitebox.getInternalState(postgresConnector, "queryConnection"), queryConnection);
+
     }
 
     class MockPostgresConnector extends PostgresConnector {
