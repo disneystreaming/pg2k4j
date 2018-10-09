@@ -69,6 +69,9 @@ public class SlotReaderKinesisWriterTest {
     private ReplicationConfiguration replicationConfiguration;
 
     @Mock
+    private KinesisProducerConfigurationFactory kinesisProducerConfigurationFactory;
+
+    @Mock
     private KinesisProducerConfiguration kinesisProducerConfiguration;
 
     @Mock
@@ -112,6 +115,7 @@ public class SlotReaderKinesisWriterTest {
     private LogSequenceNumber lsn = LogSequenceNumber.valueOf(1234);
 
     private static final int testByteBufferOffset = 0;
+    private static final String streamName = "streamName";
     private static final int testIdleSlotRecreationSeconds = 10;
     private static final byte[] testByteArray = "testByteArray".getBytes();
     private static final String correctTableName = "correctTableName";
@@ -127,7 +131,7 @@ public class SlotReaderKinesisWriterTest {
         Whitebox.setInternalState(slotReaderKinesisWriter, "kinesisProducerConfiguration", kinesisProducerConfiguration);
         Whitebox.setInternalState(SlotReaderKinesisWriter.class, "objectMapper", objectMapper);
         Mockito.doReturn(slotMessage).when(objectMapper).readValue(testByteArray, testByteBufferOffset, testByteArray.length, SlotMessage.class);
-
+        Mockito.doReturn(kinesisProducerConfiguration).when(kinesisProducerConfigurationFactory).getKinesisProducerConfiguration();
         Mockito.doReturn(Stream.of(userRecord)).when(slotReaderKinesisWriter).getUserRecords(slotMessage);
         Mockito.doReturn(callback).when(slotReaderKinesisWriter).getCallback(postgresConnector, userRecord);
         Mockito.doReturn(slotMessage).when(slotReaderKinesisWriter).getSlotMessage(testByteArray, testByteBufferOffset);
@@ -245,6 +249,16 @@ public class SlotReaderKinesisWriterTest {
         assertEquals(userRecords.size(), 1);
         SlotMessage slotMessage = realObjectMapper.readValue(userRecords.get(0).getData().array(), SlotMessage.class);
         assertEquals(slotMessage.getXid(), testSlotMessage.getXid());
+    }
+
+    @Test
+    public void testConstructor() throws Exception {
+        SlotReaderKinesisWriter slotReaderKinesisWriter = new SlotReaderKinesisWriter(postgresConfiguration,
+                replicationConfiguration, kinesisProducerConfigurationFactory, streamName);
+        assertEquals(Whitebox.getInternalState(slotReaderKinesisWriter, "postgresConfiguration"), postgresConfiguration);
+        assertEquals(Whitebox.getInternalState(slotReaderKinesisWriter, "replicationConfiguration"), replicationConfiguration);
+        assertEquals(Whitebox.getInternalState(slotReaderKinesisWriter, "kinesisProducerConfiguration"), kinesisProducerConfiguration);
+        assertEquals(Whitebox.getInternalState(slotReaderKinesisWriter, "streamName"), streamName);
     }
 
     private void testReadSlotWriteToKinesisException(Exception e) throws Exception {
