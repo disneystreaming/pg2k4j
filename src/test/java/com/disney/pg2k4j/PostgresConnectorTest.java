@@ -214,6 +214,31 @@ public class PostgresConnectorTest {
         assertEquals(postgresConnector.getCurrentLSN(), LogSequenceNumber.INVALID_LSN);
     }
 
+    @Test
+    public void testCloseNoExceptions() throws Exception {
+        testClose();
+    }
+
+    @Test
+    public void testCloseExceptions() throws Exception {
+        Mockito.doThrow(sqlException).when(pgReplicationStream).close();
+        Mockito.doThrow(sqlException).when(streamingConnection).close();
+        Mockito.doThrow(sqlException).when(queryConnection).close();
+        testClose();
+    }
+
+    private void testClose() throws Exception {
+        Mockito.doReturn(false).when(pgReplicationStream).isClosed();
+        Whitebox.setInternalState(postgresConnector, "pgReplicationStream", pgReplicationStream);
+        Whitebox.setInternalState(postgresConnector, "streamingConnection", streamingConnection);
+        Whitebox.setInternalState(postgresConnector, "queryConnection", queryConnection);
+        Mockito.doCallRealMethod().when(postgresConnector).close();
+        postgresConnector.close();
+        Mockito.verify(pgReplicationStream, Mockito.times(1)).forceUpdateStatus();
+        Mockito.verify(pgReplicationStream, Mockito.times(1)).close();
+        Mockito.verify(streamingConnection, Mockito.times(1)).close();
+        Mockito.verify(queryConnection, Mockito.times(1)).close();
+    }
 
     private void testConstructor() throws Exception {
         PostgresConnector postgresConnector = new MockPostgresConnector(postgresConfiguration, replicationConfiguration);
