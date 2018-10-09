@@ -36,6 +36,7 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
 import org.postgresql.PGConnection;
+import org.postgresql.replication.LogSequenceNumber;
 import org.postgresql.replication.PGReplicationConnection;
 import org.postgresql.replication.PGReplicationStream;
 import org.postgresql.replication.fluent.ChainedCreateReplicationSlotBuilder;
@@ -45,7 +46,9 @@ import org.postgresql.util.PSQLState;
 import org.powermock.api.mockito.PowerMockito;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -74,6 +77,9 @@ public class PostgresConnectorTest {
     PGConnection pgConnection;
 
     @Mock
+    Statement statement;
+
+    @Mock
     private PostgresConfiguration postgresConfiguration;
 
     @Mock
@@ -85,10 +91,17 @@ public class PostgresConnectorTest {
     @Mock
     private SQLException sqlException;
 
+    @Mock
+    private ResultSet resultsPresentResultSet;
+
+    @Mock
+    private ResultSet resultsAbsentResultSet;
+
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     private static final String outputPlugin = "wal2json";
+    private static final String lsn = "10/5";
     private static final String slotName = "slotName";
     private static final int tries = 2;
     private static final String postgresUrl = "postgresUrl";
@@ -100,6 +113,10 @@ public class PostgresConnectorTest {
 
     @Before
     public void setUp() throws Exception {
+        Mockito.doReturn(statement).when(queryConnection).createStatement();
+        Mockito.doReturn(true).when(resultsPresentResultSet).next();
+        Mockito.doReturn(false).when(resultsAbsentResultSet).next();
+        Mockito.doReturn(lsn).when(resultsPresentResultSet).getString(1);
         Mockito.doReturn(slotName).when(replicationConfiguration).getSlotName();
         Mockito.doReturn(outputPlugin).when(replicationConfiguration).getOutputPlugin();
         Mockito.doReturn(chainedCreateReplicationSlotBuilder).when(pgReplicationConnection).createReplicationSlot();
@@ -179,7 +196,24 @@ public class PostgresConnectorTest {
         PowerMockito.doThrow(sqlException).when(chainedLogicalCreateSlotBuilder).make();
         PowerMockito.doReturn("42710").when(sqlException).getSQLState();
         testConstructor();
-}
+    }
+
+    @Test
+    public void testGetCurrentLSNExists() throws Exception {
+        Mockito.doReturn(resultsPresentResultSet).when(statement).executeQuery("select pg_current_wal_lsn()");
+        Whitebox.setInternalState(postgresConnector, "queryConnection", queryConnection);
+        Mockito.doCallRealMethod().when(postgresConnector).getCurrentLSN();
+        assertEquals(postgresConnector.getCurrentLSN().asString(), lsn);
+    }
+
+    @Test
+    public void testGetCurrentLSNNotExists() throws Exception {
+        Mockito.doReturn(resultsAbsentResultSet).when(statement).executeQuery("select pg_current_wal_lsn()");
+        Whitebox.setInternalState(postgresConnector, "queryConnection", queryConnection);
+        Mockito.doCallRealMethod().when(postgresConnector).getCurrentLSN();
+        assertEquals(postgresConnector.getCurrentLSN(), LogSequenceNumber.INVALID_LSN);
+    }
+
 
     private void testConstructor() throws Exception {
         PostgresConnector postgresConnector = new MockPostgresConnector(postgresConfiguration, replicationConfiguration);
