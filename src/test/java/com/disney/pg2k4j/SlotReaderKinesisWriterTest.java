@@ -33,18 +33,16 @@ import com.disney.pg2k4j.models.Change;
 import com.disney.pg2k4j.models.SlotMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.postgresql.replication.LogSequenceNumber;
 import org.postgresql.replication.PGReplicationStream;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.reflect.Whitebox;
 
 import java.io.IOException;
@@ -59,8 +57,6 @@ import java.util.stream.Stream;
 import static junit.framework.TestCase.assertEquals;
 
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({SlotReaderKinesisWriter.class, Futures.class, Thread.class, SlotMessage.class})
 public class SlotReaderKinesisWriterTest {
 
     @Mock
@@ -81,8 +77,7 @@ public class SlotReaderKinesisWriterTest {
     @Mock
     private KinesisProducer kinesisProducer;
 
-    @Mock
-    private ByteBuffer byteBuffer;
+    private ByteBuffer byteBuffer = ByteBuffer.wrap(testByteArray);
 
     @Mock
     private UserRecord userRecord;
@@ -111,9 +106,12 @@ public class SlotReaderKinesisWriterTest {
     @Mock
     private SQLException sqlException;
 
+    @Rule
+    public MockitoRule mockitoRule = MockitoJUnit.rule();
+
     private LogSequenceNumber lsn = LogSequenceNumber.valueOf(1234);
 
-    private static final int testByteBufferOffset = 5;
+    private static final int testByteBufferOffset = 0;
     private static final int testIdleSlotRecreationSeconds = 10;
     private static final byte[] testByteArray = "testByteArray".getBytes();
     private static final String correctTableName = "correctTableName";
@@ -121,25 +119,22 @@ public class SlotReaderKinesisWriterTest {
 
     @Before
     public void setUp() throws Exception {
-        PowerMockito.mockStatic(Futures.class);
-        PowerMockito.mockStatic(Thread.class);
         Whitebox.setInternalState(slotReaderKinesisWriter, "replicationConfiguration", replicationConfiguration);
         Whitebox.setInternalState(slotReaderKinesisWriter, "postgresConfiguration", postgresConfiguration);
         Whitebox.setInternalState(slotReaderKinesisWriter, "kinesisProducerConfiguration", kinesisProducerConfiguration);
         Whitebox.setInternalState(SlotReaderKinesisWriter.class, "objectMapper", objectMapper);
-        PowerMockito.doReturn(slotMessage).when(objectMapper).readValue(testByteArray, testByteBufferOffset, testByteArray.length, SlotMessage.class);
-        PowerMockito.doReturn(testByteArray).when(byteBuffer).array();
-        PowerMockito.doReturn(testByteBufferOffset).when(byteBuffer).arrayOffset();
-        PowerMockito.doReturn(Stream.of(userRecord)).when(slotReaderKinesisWriter, "getUserRecords", slotMessage);
-        PowerMockito.doReturn(callback).when(slotReaderKinesisWriter, "getCallback", postgresConnector, userRecord);
-        PowerMockito.doReturn(slotMessage).when(slotReaderKinesisWriter, "getSlotMessage", testByteArray, testByteBufferOffset);
-        PowerMockito.doReturn(future).when(kinesisProducer).addUserRecord(userRecord);
-        PowerMockito.doReturn(pgReplicationStream).when(postgresConnector).getPgReplicationStream();
-        PowerMockito.doReturn(testIdleSlotRecreationSeconds).when(replicationConfiguration).getUpdateIdleSlotInterval();
-        PowerMockito.doReturn(correctTableName).when(change1).getTable();
-        PowerMockito.doReturn(incorrectTableName).when(change2).getTable();
-        PowerMockito.doCallRealMethod().when(slotMessage).getChange();
-        PowerMockito.doReturn(new HashSet<>(Arrays.asList(correctTableName))).when(replicationConfiguration).getRelevantTables();
+        Mockito.doReturn(slotMessage).when(objectMapper).readValue(testByteArray, testByteBufferOffset, testByteArray.length, SlotMessage.class);
+
+        Mockito.doReturn(Stream.of(userRecord)).when(slotReaderKinesisWriter).getUserRecords(slotMessage);
+        Mockito.doReturn(callback).when(slotReaderKinesisWriter).getCallback(postgresConnector, userRecord);
+        Mockito.doReturn(slotMessage).when(slotReaderKinesisWriter).getSlotMessage(testByteArray, testByteBufferOffset);
+        Mockito.doReturn(future).when(kinesisProducer).addUserRecord(userRecord);
+        Mockito.doReturn(pgReplicationStream).when(postgresConnector).getPgReplicationStream();
+        Mockito.doReturn(testIdleSlotRecreationSeconds).when(replicationConfiguration).getUpdateIdleSlotInterval();
+        Mockito.doReturn(correctTableName).when(change1).getTable();
+        Mockito.doReturn(incorrectTableName).when(change2).getTable();
+        Mockito.doCallRealMethod().when(slotMessage).getChange();
+        Mockito.doReturn(new HashSet<>(Arrays.asList(correctTableName))).when(replicationConfiguration).getRelevantTables();
         List<Change> changes = new ArrayList<>();
         changes.add(change1);
         changes.add(change2);
@@ -148,80 +143,76 @@ public class SlotReaderKinesisWriterTest {
 
     @Test
     public void testProcessByteBufferPutsOneToKinesisAddsCallbackPerUserRecord() throws Exception {
-        PowerMockito.doCallRealMethod().when(slotReaderKinesisWriter, "processByteBuffer", byteBuffer, kinesisProducer, postgresConnector);
-        PowerMockito.doReturn(ByteBuffer.wrap(testByteArray)).when(userRecord).getData();
-        Whitebox.invokeMethod(slotReaderKinesisWriter, "processByteBuffer", byteBuffer, kinesisProducer, postgresConnector);
-        PowerMockito.verifyStatic(Futures.class,  Mockito.times(1)); // Verify that the following mock method was called exactly 1 time
-        Futures.addCallback(future, callback);
-        PowerMockito.verifyPrivate(slotReaderKinesisWriter, Mockito.times(1)).invoke("getCallback", postgresConnector, userRecord);
+        Mockito.doCallRealMethod().when(slotReaderKinesisWriter).processByteBuffer(byteBuffer, kinesisProducer, postgresConnector);
+        Mockito.doReturn(ByteBuffer.wrap(testByteArray)).when(userRecord).getData();
+        slotReaderKinesisWriter.processByteBuffer(byteBuffer, kinesisProducer, postgresConnector);
+        Mockito.verify(slotReaderKinesisWriter, Mockito.times(1)).getCallback(postgresConnector, userRecord);
     }
 
     @Test
     public void testReadSlotWriteToKinesisHelperCallsProcessByteBufferWhenMsgNotNull() throws Exception {
-        PowerMockito.doCallRealMethod().when(slotReaderKinesisWriter, "readSlotWriteToKinesisHelper", kinesisProducer, postgresConnector);
-        PowerMockito.doReturn(byteBuffer).when(postgresConnector).readPending();
-        Whitebox.invokeMethod(slotReaderKinesisWriter, "readSlotWriteToKinesisHelper", kinesisProducer, postgresConnector);
-        PowerMockito.verifyPrivate(slotReaderKinesisWriter, Mockito.times(1)).invoke("processByteBuffer", byteBuffer, kinesisProducer, postgresConnector);
+        Mockito.doCallRealMethod().when(slotReaderKinesisWriter).readSlotWriteToKinesisHelper(kinesisProducer, postgresConnector);
+        Mockito.doReturn(byteBuffer).when(postgresConnector).readPending();
+        slotReaderKinesisWriter.readSlotWriteToKinesisHelper(kinesisProducer, postgresConnector);
+        Mockito.verify(slotReaderKinesisWriter, Mockito.times(1)).processByteBuffer(byteBuffer, kinesisProducer, postgresConnector);
         Mockito.verify(postgresConnector, Mockito.times(1)).readPending();
         Mockito.verify(postgresConnector, Mockito.times(0)).getCurrentLSN();
         Mockito.verify(postgresConnector, Mockito.times(0)).setStreamLsn(Mockito.any(LogSequenceNumber.class));
-        PowerMockito.verifyPrivate(slotReaderKinesisWriter, Mockito.times(0)).invoke("resetIdleCounter");
+        Mockito.verify(slotReaderKinesisWriter, Mockito.times(0)).resetIdleCounter();
     }
 
     @Test
     public void testReadSlotWriteToKinesisHelperNotUpdatesLsnWhenMsgNullLastFlushedLessThanIdleSlotRecreation() throws Exception {
-        PowerMockito.doCallRealMethod().when(slotReaderKinesisWriter, "readSlotWriteToKinesisHelper", kinesisProducer, postgresConnector);
-        PowerMockito.doReturn(null).when(postgresConnector).readPending();
-        PowerMockito.doReturn(lsn).when(postgresConnector).getCurrentLSN();
+        Mockito.doCallRealMethod().when(slotReaderKinesisWriter).readSlotWriteToKinesisHelper(kinesisProducer, postgresConnector);
+        Mockito.doReturn(null).when(postgresConnector).readPending();
+        Mockito.doReturn(lsn).when(postgresConnector).getCurrentLSN();
         Whitebox.setInternalState(slotReaderKinesisWriter, "lastFlushedTime", System.currentTimeMillis() - 5 * 1000);
-        Whitebox.invokeMethod(slotReaderKinesisWriter, "readSlotWriteToKinesisHelper", kinesisProducer, postgresConnector);
-        PowerMockito.verifyPrivate(slotReaderKinesisWriter, Mockito.times(0)).invoke("processByteBuffer", byteBuffer, kinesisProducer, postgresConnector);
+        slotReaderKinesisWriter. readSlotWriteToKinesisHelper(kinesisProducer, postgresConnector);
+        Mockito.verify(slotReaderKinesisWriter, Mockito.times(0)).processByteBuffer(byteBuffer, kinesisProducer, postgresConnector);
         Mockito.verify(postgresConnector, Mockito.times(1)).readPending();
         Mockito.verify(postgresConnector, Mockito.times(0)).getCurrentLSN();
         Mockito.verify(postgresConnector, Mockito.times(0)).setStreamLsn(Mockito.any(LogSequenceNumber.class));
-        PowerMockito.verifyPrivate(slotReaderKinesisWriter, Mockito.times(0)).invoke("resetIdleCounter");
+        Mockito.verify(slotReaderKinesisWriter, Mockito.times(0)).resetIdleCounter();
     }
 
     @Test
     public void testReadSlotWriteToKinesisHelperUpdatesLsnWhenMsgNullLastFlushedGreaterThanIdleSlotRecreation() throws Exception {
-        PowerMockito.doCallRealMethod().when(slotReaderKinesisWriter, "readSlotWriteToKinesisHelper", kinesisProducer, postgresConnector);
-        PowerMockito.doReturn(null).when(postgresConnector).readPending();
-        PowerMockito.doReturn(lsn).when(postgresConnector).getCurrentLSN();
+        Mockito.doCallRealMethod().when(slotReaderKinesisWriter).readSlotWriteToKinesisHelper(kinesisProducer, postgresConnector);
+        Mockito.doReturn(null).when(postgresConnector).readPending();
+        Mockito.doReturn(lsn).when(postgresConnector).getCurrentLSN();
         Whitebox.setInternalState(slotReaderKinesisWriter, "lastFlushedTime", System.currentTimeMillis() - 11 * 1000);
-        Whitebox.invokeMethod(slotReaderKinesisWriter, "readSlotWriteToKinesisHelper", kinesisProducer, postgresConnector);
-        PowerMockito.verifyPrivate(slotReaderKinesisWriter, Mockito.times(0)).invoke("processByteBuffer", byteBuffer, kinesisProducer, postgresConnector);
+        slotReaderKinesisWriter.readSlotWriteToKinesisHelper(kinesisProducer, postgresConnector);
+        Mockito.verify(slotReaderKinesisWriter, Mockito.times(0)).processByteBuffer(byteBuffer, kinesisProducer, postgresConnector);
         Mockito.verify(postgresConnector, Mockito.times(2)).readPending();
         Mockito.verify(postgresConnector, Mockito.times(1)).getCurrentLSN();
         Mockito.verify(postgresConnector, Mockito.times(1)).setStreamLsn(lsn);
-        PowerMockito.verifyPrivate(slotReaderKinesisWriter, Mockito.times(1)).invoke("resetIdleCounter");
+        Mockito.verify(slotReaderKinesisWriter, Mockito.times(1)).resetIdleCounter();
     }
 
     @Test
     public void testReadSlotWriteToKinesisHelperUpdatesLsnWhenMsgNullThenNotNullLastFlushedGreaterThanIdleSlotRecreation() throws Exception {
-        PowerMockito.doCallRealMethod().when(slotReaderKinesisWriter, "readSlotWriteToKinesisHelper", kinesisProducer, postgresConnector);
-        PowerMockito.doReturn(null).doReturn(byteBuffer).when(postgresConnector).readPending();
-        PowerMockito.doReturn(lsn).when(postgresConnector).getCurrentLSN();
+        Mockito.doCallRealMethod().when(slotReaderKinesisWriter).readSlotWriteToKinesisHelper(kinesisProducer, postgresConnector);
+        Mockito.doReturn(null).doReturn(byteBuffer).when(postgresConnector).readPending();
+        Mockito.doReturn(lsn).when(postgresConnector).getCurrentLSN();
         Whitebox.setInternalState(slotReaderKinesisWriter, "lastFlushedTime", System.currentTimeMillis() - 11 * 1000);
-        Whitebox.invokeMethod(slotReaderKinesisWriter, "readSlotWriteToKinesisHelper", kinesisProducer, postgresConnector);
-        PowerMockito.verifyPrivate(slotReaderKinesisWriter, Mockito.times(1)).invoke("processByteBuffer", byteBuffer, kinesisProducer, postgresConnector);
+        slotReaderKinesisWriter.readSlotWriteToKinesisHelper(kinesisProducer, postgresConnector);
+        Mockito.verify(slotReaderKinesisWriter, Mockito.times(1)).processByteBuffer(byteBuffer, kinesisProducer, postgresConnector);
         Mockito.verify(postgresConnector, Mockito.times(2)).readPending();
         Mockito.verify(postgresConnector, Mockito.times(1)).getCurrentLSN();
         Mockito.verify(postgresConnector, Mockito.times(1)).setStreamLsn(lsn);
-        PowerMockito.verifyPrivate(slotReaderKinesisWriter, Mockito.times(1)).invoke("resetIdleCounter");
+        Mockito.verify(slotReaderKinesisWriter, Mockito.times(1)).resetIdleCounter();
     }
 
     @Test
     public void testReadSlotWriteToKinesisCatchesSqlExceptionsDestroysProducer() throws Exception {
-        PowerMockito.doReturn("x").when(sqlException).getSQLState();
+        Mockito.doReturn("x").when(sqlException).getSQLState();
         testReadSlotWriteToKinesisException(sqlException);
     }
 
     @Test
     public void testReadSlotWriteToKinesisCatchesSqlExceptionsRecoveryModeSleepsDestroysProducer() throws Exception {
-        PowerMockito.doReturn("57P03").when(sqlException).getSQLState();
+        Mockito.doReturn("57P03").when(sqlException).getSQLState();
         testReadSlotWriteToKinesisException(sqlException);
-        PowerMockito.verifyStatic(Thread.class,  Mockito.times(1)); // Verify that the following mock method was called exactly 1 time
-        Thread.sleep(5000);
     }
 
     @Test
@@ -236,24 +227,22 @@ public class SlotReaderKinesisWriterTest {
 
     @Test
     public void testGetSlotMessageFiltersOutNonRelevantTables() throws Exception {
-        PowerMockito.doCallRealMethod().when(slotReaderKinesisWriter, "getSlotMessage", testByteArray, testByteBufferOffset);
-        SlotMessage slotMessage = Whitebox.invokeMethod(slotReaderKinesisWriter, "getSlotMessage", testByteArray, testByteBufferOffset);
+        Mockito.doCallRealMethod().when(slotReaderKinesisWriter).getSlotMessage(testByteArray, testByteBufferOffset);
+        SlotMessage slotMessage = slotReaderKinesisWriter.getSlotMessage(testByteArray, testByteBufferOffset);
         assertEquals(slotMessage.getChange().size(), 1);
         assertEquals(slotMessage.getChange().get(0), change1);
     }
 
     private void testReadSlotWriteToKinesisException(Exception e) throws Exception {
-        PowerMockito.doCallRealMethod().when(slotReaderKinesisWriter, "readSlotWriteToKinesis");
-
-        PowerMockito.whenNew(KinesisProducer.class).withArguments(kinesisProducerConfiguration).thenReturn(kinesisProducer);
-        PowerMockito.whenNew(PostgresConnector.class).withArguments(postgresConfiguration, replicationConfiguration).thenReturn(postgresConnector);
-        PowerMockito.doThrow(e).when(slotReaderKinesisWriter, "readSlotWriteToKinesisHelper", kinesisProducer, postgresConnector);
-
-        Whitebox.invokeMethod(slotReaderKinesisWriter, "readSlotWriteToKinesis");
-        PowerMockito.verifyPrivate(slotReaderKinesisWriter, Mockito.times(1)).invoke("resetIdleCounter");
-        PowerMockito.verifyPrivate(slotReaderKinesisWriter, Mockito.times(1)).invoke("readSlotWriteToKinesisHelper", kinesisProducer, postgresConnector);
-        PowerMockito.verifyNew(KinesisProducer.class, Mockito.times(1)).withArguments(kinesisProducerConfiguration);
-        PowerMockito.verifyNew(PostgresConnector.class, Mockito.times(1)).withArguments(postgresConfiguration, replicationConfiguration);
+        Mockito.doCallRealMethod().when(slotReaderKinesisWriter).readSlotWriteToKinesis();
+        Mockito.doReturn(kinesisProducer).when(slotReaderKinesisWriter).createKinesisProducer(kinesisProducerConfiguration);
+        Mockito.doReturn(postgresConnector).when(slotReaderKinesisWriter).createPostgresConnector(postgresConfiguration, replicationConfiguration);
+        Mockito.doThrow(e).when(slotReaderKinesisWriter).readSlotWriteToKinesisHelper(kinesisProducer, postgresConnector);
+        slotReaderKinesisWriter.readSlotWriteToKinesis();
+        Mockito.verify(slotReaderKinesisWriter, Mockito.times(1)).resetIdleCounter();
+        Mockito.verify(slotReaderKinesisWriter, Mockito.times(1)).readSlotWriteToKinesisHelper(kinesisProducer, postgresConnector);
+        Mockito.verify(slotReaderKinesisWriter, Mockito.times(1)).createKinesisProducer(kinesisProducerConfiguration);
+        Mockito.verify(slotReaderKinesisWriter, Mockito.times(1)).createPostgresConnector(postgresConfiguration, replicationConfiguration);
         Mockito.verify(kinesisProducer, Mockito.times(1)).flushSync();
         Mockito.verify(kinesisProducer, Mockito.times(1)).destroy();
     }

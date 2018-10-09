@@ -81,11 +81,11 @@ public class SlotReaderKinesisWriter {
      * method throws an exception. In which case, exit from the method and log the error.
      */
 
-    private void readSlotWriteToKinesis() {
+    void readSlotWriteToKinesis() {
         KinesisProducer kinesisProducer = null;
-        try (PostgresConnector postgresConnector = new PostgresConnector(postgresConfiguration, replicationConfiguration)) {
+        try (PostgresConnector postgresConnector = createPostgresConnector(postgresConfiguration, replicationConfiguration)) {
             resetIdleCounter();
-            kinesisProducer = new KinesisProducer(kinesisProducerConfiguration);
+            kinesisProducer = createKinesisProducer(kinesisProducerConfiguration);
             logger.info("Consuming from slot {}", replicationConfiguration.getSlotName());
             while (true) {
                 readSlotWriteToKinesisHelper(kinesisProducer, postgresConnector);
@@ -141,7 +141,7 @@ public class SlotReaderKinesisWriter {
      * @throws SQLException
      * @throws IOException
      */
-    private void readSlotWriteToKinesisHelper(final KinesisProducer kinesisProducer, final PostgresConnector postgresConnector) throws SQLException, IOException {
+    void readSlotWriteToKinesisHelper(final KinesisProducer kinesisProducer, final PostgresConnector postgresConnector) throws SQLException, IOException {
         ByteBuffer msg = postgresConnector.readPending();
         if (msg != null) {
             processByteBuffer(msg, kinesisProducer, postgresConnector);
@@ -161,14 +161,14 @@ public class SlotReaderKinesisWriter {
     /**
      * Parse this message and call {@link #getSlotMessage(byte[], int)} to get the bean representation of this WAL chunk.
      * Pass this off to {@link #getUserRecords(SlotMessage)} )} to get the java stream of UserRecords to then put on the Kinesis Stream.
-     * Register the callback defined in {@link #getCallback(PostgresConnector)} to be invoked when
+     * Register the callback defined in {@link #getCallback(PostgresConnector, UserRecord)} to be invoked when
      * the records succeed or fail to be placed on the stream by the prodcuer.
      * @param msg Data coming off the WAL which will act as UserRecord seed
      * @param kinesisProducer {@link KinesisProducer}
      * @param postgresConnector {@link PostgresConnector}
      * @throws IOException
      */
-    private void processByteBuffer(final ByteBuffer msg, final KinesisProducer kinesisProducer, final PostgresConnector postgresConnector) throws IOException {
+    void processByteBuffer(final ByteBuffer msg, final KinesisProducer kinesisProducer, final PostgresConnector postgresConnector) throws IOException {
         logger.debug("Processing chunk from wal");
         int offset = msg.arrayOffset();
         byte[] source = msg.array();
@@ -191,7 +191,7 @@ public class SlotReaderKinesisWriter {
         lastFlushedTime = System.currentTimeMillis();
     }
 
-    protected Stream<UserRecord> getUserRecords(SlotMessage slotMessage) throws JsonProcessingException {
+    Stream<UserRecord> getUserRecords(SlotMessage slotMessage) throws JsonProcessingException {
         Stream<ByteBuffer> byteBuffers = Stream.of(ByteBuffer.wrap(objectMapper.writeValueAsBytes(slotMessage)));
         return byteBuffers.map(
                 byteBuffer -> {
@@ -202,17 +202,25 @@ public class SlotReaderKinesisWriter {
         );
     }
 
-    protected FutureCallback<UserRecordResult> getCallback(PostgresConnector postgresConnector, UserRecord userRecord) {
+    FutureCallback<UserRecordResult> getCallback(PostgresConnector postgresConnector, UserRecord userRecord) {
         return new SlotReaderCallback(this, postgresConnector, userRecord);
     }
 
-    protected SlotMessage getSlotMessage(byte[] walChunk, int offset) throws IOException {
+    SlotMessage getSlotMessage(byte[] walChunk, int offset) throws IOException {
         SlotMessage slotMessage = objectMapper.readValue(walChunk, offset, walChunk.length, SlotMessage.class);
         Set<String> relevantTables = replicationConfiguration.getRelevantTables();
         if (relevantTables != null) {
             slotMessage.getChange().removeIf(change -> !relevantTables.contains(change.getTable()));
         }
         return slotMessage;
+    }
+
+    PostgresConnector createPostgresConnector(PostgresConfiguration postgresConfiguration, ReplicationConfiguration replicationConfiguration) throws SQLException {
+        return new PostgresConnector(postgresConfiguration, replicationConfiguration);
+    }
+
+    KinesisProducer createKinesisProducer(KinesisProducerConfiguration kinesisProducerConfiguration) {
+        return new KinesisProducer(kinesisProducerConfiguration);
     }
 }
 
