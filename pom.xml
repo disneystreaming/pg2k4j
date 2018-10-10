@@ -155,7 +155,7 @@
                             <encoding>UTF-8</encoding>
                             <consoleOutput>true</consoleOutput>
                             <failsOnError>true</failsOnError>
-                            <configLocation>sun_checks.xml</configLocation>
+                            <configLocation>style.xml</configLocation>
                         </configuration>
                         <goals>
                             <goal>check</goal>
