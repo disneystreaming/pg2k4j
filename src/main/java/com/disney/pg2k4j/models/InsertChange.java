@@ -21,7 +21,7 @@
  KIND, either express or implied. See the Apache License for the specific
  language governing permissions and limitations under the Apache License.
 
- *******************************************************************************/
+ ******************************************************************************/
 
 package com.disney.pg2k4j.models;
 
@@ -37,17 +37,23 @@ public class InsertChange extends Change {
 
     @JsonCreator
     public InsertChange(
-            @JsonProperty(value = "kind", required = true) final String kind,
-            @JsonProperty(value = "columnnames", required = true) final List<String> columnnames,
-            @JsonProperty(value = "columntypes", required = true) final List<String> columntypes,
-            @JsonProperty(value = "table", required = true) final String table,
-            @JsonProperty(value = "columnvalues", required = true) final List<Object> columnvalues,
-            @JsonProperty(value = "schema", required = true) final String schema
+            @JsonProperty(value = "kind", required = true)
+            final String kindInput,
+            @JsonProperty(value = "columnnames", required = true)
+            final List<String> columnnamesInput,
+            @JsonProperty(value = "columntypes", required = true)
+            final List<String> columntypesInput,
+            @JsonProperty(value = "table", required = true)
+            final String tableInput,
+            @JsonProperty(value = "columnvalues", required = true)
+            final List<Object> columnvaluesInput,
+            @JsonProperty(value = "schema", required = true)
+            final String schemaInput
     ) {
-        super(kind, table, schema);
-        this.columnvalues = columnvalues;
-        this.columnnames = columnnames;
-        this.columntypes = columntypes;
+        super(kindInput, tableInput, schemaInput);
+        this.columnvalues = columnvaluesInput;
+        this.columnnames = columnnamesInput;
+        this.columntypes = columntypesInput;
     }
 
     public List<Object> getColumnvalues() {

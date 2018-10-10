@@ -21,7 +21,7 @@
  KIND, either express or implied. See the Apache License for the specific
  language governing permissions and limitations under the Apache License.
 
- *******************************************************************************/
+ ******************************************************************************/
 
 package com.disney.pg2k4j;
 
@@ -37,34 +37,43 @@ import org.slf4j.LoggerFactory;
 
 public class SlotReaderCallback implements FutureCallback<UserRecordResult> {
 
-    private static final Logger logger = LoggerFactory.getLogger(SlotReaderCallback.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(SlotReaderCallback.class);
 
     private final LogSequenceNumber lsn;
     private final PostgresConnector postgresConnector;
     private final SlotReaderKinesisWriter slotReaderKinesisWriter;
     private final UserRecord userRecord;
 
-    protected SlotReaderCallback(SlotReaderKinesisWriter slotReaderKinesisWriter, PostgresConnector postgresConnector, UserRecord userRecord) {
-        this.slotReaderKinesisWriter = slotReaderKinesisWriter;
-        this.postgresConnector = postgresConnector;
+    protected SlotReaderCallback(
+            final SlotReaderKinesisWriter slotReaderKinesisWriterInput,
+            final PostgresConnector postgresConnectorInput,
+            final UserRecord userRecordInput) {
+        this.slotReaderKinesisWriter = slotReaderKinesisWriterInput;
+        this.postgresConnector = postgresConnectorInput;
         this.lsn = postgresConnector.getLastReceivedLsn();
-        this.userRecord = userRecord;
+        this.userRecord = userRecordInput;
     }
 
     @Override
-    public void onFailure(Throwable t) {
-        logger.error("Failed to put record with postgres sequence number {} onto the stream{}", lsn, t);
+    public void onFailure(final Throwable t) {
+        logger.error("Failed to put record with postgres sequence number {}"
+                + " onto the stream{}", lsn, t);
         if (t instanceof UserRecordFailedException) {
-            final Attempt last = Iterables.getLast(((UserRecordFailedException) t).getResult().getAttempts());
-            logger.error("Failed to put record. Error code '{}' : '{}'.", last.getErrorCode(), last.getErrorMessage());
+            final Attempt last = Iterables.getLast((
+                    (UserRecordFailedException) t).getResult().getAttempts());
+            logger.error("Failed to put record. Error code '{}' : '{}'.",
+                    last.getErrorCode(), last.getErrorMessage());
         }
     }
 
     @Override
-    public void onSuccess(UserRecordResult result) {
+    public void onSuccess(final UserRecordResult result) {
         if (logger.isTraceEnabled()) {
-            logger.trace("Setting stream last applied and last flush lsn to {}", lsn);
-            logger.trace("Successfully Put record on stream {} to shard {} with sequence number {} after {} attempts",
+            logger.trace("Setting stream last applied and last flush lsn to {}",
+                    lsn);
+            logger.trace("Successfully Put record on stream {} to shard {} "
+                           + "with sequence number {} after {} attempts",
                     new String(userRecord.getData().array()),
                     result.getShardId(),
                     result.getSequenceNumber(),

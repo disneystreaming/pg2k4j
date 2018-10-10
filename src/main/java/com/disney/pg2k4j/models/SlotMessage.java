@@ -21,7 +21,7 @@
  KIND, either express or implied. See the Apache License for the specific
  language governing permissions and limitations under the Apache License.
 
- *******************************************************************************/
+ ******************************************************************************/
 
 package com.disney.pg2k4j.models;
 
@@ -32,16 +32,17 @@ import java.util.List;
 
 public class SlotMessage {
 
-    protected final int xid;
-    protected final List<Change> change;
+    private final int xid;
+    private final List<Change> change;
 
     @JsonCreator
     public SlotMessage(
-            @JsonProperty(value = "xid", required = true) final int xid,
-            @JsonProperty(value = "change", required = true) final List<Change> change
+            @JsonProperty(value = "xid", required = true) final int xidInput,
+            @JsonProperty(value = "change", required = true)
+            final List<Change> changeInput
     ) {
-        this.xid = xid;
-        this.change = change;
+        this.xid = xidInput;
+        this.change = changeInput;
     }
 
     public int getXid() {

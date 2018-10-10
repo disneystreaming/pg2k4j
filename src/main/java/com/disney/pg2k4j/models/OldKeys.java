@@ -21,7 +21,7 @@
  KIND, either express or implied. See the Apache License for the specific
  language governing permissions and limitations under the Apache License.
 
- *******************************************************************************/
+ ******************************************************************************/
 
 package com.disney.pg2k4j.models;
 
@@ -38,13 +38,16 @@ public class OldKeys {
 
     @JsonCreator
     public OldKeys(
-            @JsonProperty(value = "keytypes", required = true) final List<String> keytypes,
-            @JsonProperty(value = "keyvalues", required = true) final List<Object> keyvalues,
-            @JsonProperty(value = "keynames", required = true) final List<String> keynames
+            @JsonProperty(value = "keytypes", required = true)
+            final List<String> keytypesInput,
+            @JsonProperty(value = "keyvalues", required = true)
+            final List<Object> keyvaluesInput,
+            @JsonProperty(value = "keynames", required = true)
+            final List<String> keynamesInput
             ) {
-        this.keytypes = keytypes;
-        this.keyvalues = keyvalues;
-        this.keynames = keynames;
+        this.keytypes = keytypesInput;
+        this.keyvalues = keyvaluesInput;
+        this.keynames = keynamesInput;
     }
 
     public List<String> getKeytypes() {

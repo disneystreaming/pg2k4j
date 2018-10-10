@@ -21,7 +21,7 @@
  KIND, either express or implied. See the Apache License for the specific
  language governing permissions and limitations under the Apache License.
 
- *******************************************************************************/
+ ******************************************************************************/
 
 package com.disney.pg2k4j.models;
 
@@ -37,13 +37,17 @@ public class DeleteChange extends Change {
 
     @JsonCreator
     public DeleteChange(
-            @JsonProperty(value = "kind", required = true) final String kind,
-            @JsonProperty(value = "table", required = true) final String table,
-            @JsonProperty(value = "schema", required = true) final String schema,
-            @JsonProperty(value = "oldkeys", required = true) final OldKeys oldkeys
+            @JsonProperty(value = "kind", required = true)
+            final String kindInput,
+            @JsonProperty(value = "table", required = true)
+            final String tableInput,
+            @JsonProperty(value = "schema", required = true)
+            final String schemaInput,
+            @JsonProperty(value = "oldkeys", required = true)
+            final OldKeys oldkeysInput
     ) {
-        super(kind,  table, schema);
-        this.oldkeys = oldkeys;
+        super(kindInput,  tableInput, schemaInput);
+        this.oldkeys = oldkeysInput;
     }
 
     public OldKeys getOldkeys() {
