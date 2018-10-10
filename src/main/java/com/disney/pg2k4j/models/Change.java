@@ -21,15 +21,21 @@
  KIND, either express or implied. See the Apache License for the specific
  language governing permissions and limitations under the Apache License.
 
- *******************************************************************************/
+ ******************************************************************************/
 
 package com.disney.pg2k4j.models;
 
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import java.util.List;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "kind", visible = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.EXISTING_PROPERTY,
+        property = "kind", visible = true)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = InsertChange.class, name = "insert"),
         @JsonSubTypes.Type(value = UpdateChange.class, name = "update"),
@@ -43,13 +49,16 @@ public abstract class Change {
 
     @JsonCreator
     public Change(
-            @JsonProperty(value = "kind", required = true) final String kind,
-            @JsonProperty(value = "table", required = true) final String table,
-            @JsonProperty(value = "schema", required = true) final String schema
+            @JsonProperty(value = "kind", required = true)
+            final String kindInput,
+            @JsonProperty(value = "table", required = true)
+            final String tableInput,
+            @JsonProperty(value = "schema", required = true)
+            final String schemaInput
     ) {
-        this.kind = kind;
-        this.table = table;
-        this.schema = schema;
+        this.kind = kindInput;
+        this.table = tableInput;
+        this.schema = schemaInput;
     }
 
     public String getKind() {
@@ -68,12 +77,12 @@ public abstract class Change {
 
     public abstract List<Object> getColumnvalues();
 
-    public Object getValueForColumn(String columnName) throws UnknownColumnNameException {
+    public Object getValueForColumn(final String columnName)
+            throws UnknownColumnNameException {
         int columnIndex = getColumnnames().indexOf(columnName);
         if (columnIndex != -1) {
             return getColumnvalues().get(columnIndex);
-        }
-        else {
+        } else {
             throw new UnknownColumnNameException(columnName);
         }
     }

@@ -21,7 +21,7 @@
  KIND, either express or implied. See the Apache License for the specific
  language governing permissions and limitations under the Apache License.
 
- *******************************************************************************/
+ ******************************************************************************/
 
 package com.disney.pg2k4j;
 
@@ -31,13 +31,13 @@ import java.util.concurrent.TimeUnit;
 
 public interface ReplicationConfiguration {
 
-    static final int DEFAULT_STATUS_INTERVAL_VALUE = 20;
-    static final TimeUnit DEFAULT_STATUS_INTERVAL_TIME_UNIT = TimeUnit.SECONDS;
-    static final boolean DEFAULT_INCLUDE_XIDS = true;
-    static final String DEFAULT_OUTPUT_PLUGIN = "wal2json";
-    static final int DEFAULT_UPDATE_IDLE_SLOT_INTERVAL = 300;
-    static final int DEFAULT_EXISTING_PROCESS_RETRY_LIMIT = 30;
-    static final int DEFAULT_EXISTING_PROCESS_RETRY_SLEEP_SECONDS = 30;
+    int DEFAULT_STATUS_INTERVAL_VALUE = 20;
+    TimeUnit DEFAULT_STATUS_INTERVAL_TIME_UNIT = TimeUnit.SECONDS;
+    boolean DEFAULT_INCLUDE_XIDS = true;
+    String DEFAULT_OUTPUT_PLUGIN = "wal2json";
+    int DEFAULT_UPDATE_IDLE_SLOT_INTERVAL = 300;
+    int DEFAULT_EXISTING_PROCESS_RETRY_LIMIT = 30;
+    int DEFAULT_EXISTING_PROCESS_RETRY_SLEEP_SECONDS = 30;
 
     String getSlotName();
 
@@ -59,7 +59,8 @@ public interface ReplicationConfiguration {
 
     default Properties getSlotOptions() {
         Properties properties = new Properties();
-        properties.setProperty("include-xids", String.valueOf(getIncludeXids()));
+        properties.setProperty("include-xids", String.valueOf(
+                getIncludeXids()));
         return properties;
     }
 

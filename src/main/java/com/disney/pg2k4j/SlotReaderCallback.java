@@ -21,7 +21,7 @@
  KIND, either express or implied. See the Apache License for the specific
  language governing permissions and limitations under the Apache License.
 
- *******************************************************************************/
+ ******************************************************************************/
 
 package com.disney.pg2k4j;
 
@@ -37,7 +37,8 @@ import org.slf4j.LoggerFactory;
 
 public class SlotReaderCallback implements FutureCallback<UserRecordResult> {
 
-    private static final Logger logger = LoggerFactory.getLogger(SlotReaderCallback.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(SlotReaderCallback.class);
 
     private final LogSequenceNumber lsn;
     private final PostgresConnector postgresConnector;
