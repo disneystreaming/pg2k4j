@@ -194,8 +194,8 @@ public class SlotReaderKinesisWriter {
         if (msg != null) {
             processByteBuffer(msg, kinesisProducer, postgresConnector);
         } else if (System.currentTimeMillis() - lastFlushedTime
-                > TimeUnit.MILLISECONDS.toSeconds(
-                        replicationConfiguration.getUpdateIdleSlotInterval())) {
+                > TimeUnit.SECONDS.toMillis(replicationConfiguration
+                        .getUpdateIdleSlotInterval())) {
             LogSequenceNumber lsn = postgresConnector.getCurrentLSN();
             msg = postgresConnector.readPending();
             if (msg != null) {

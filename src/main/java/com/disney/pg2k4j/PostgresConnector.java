@@ -197,8 +197,8 @@ public class PostgresConnector implements AutoCloseable {
                                         getExistingProcessRetrySleepSeconds(),
                                 tries, psqlException);
                         try {
-                            Thread.sleep(TimeUnit.MILLISECONDS
-                                    .toSeconds(replicationConfiguration
+                            Thread.sleep(TimeUnit.SECONDS
+                                    .toMillis(replicationConfiguration
                                        .getExistingProcessRetrySleepSeconds()));
                         } catch (InterruptedException ie) {
                             logger.info("Received interruption while "
