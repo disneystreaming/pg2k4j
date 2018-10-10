@@ -21,7 +21,7 @@
  KIND, either express or implied. See the Apache License for the specific
  language governing permissions and limitations under the Apache License.
 
- *******************************************************************************/
+ ******************************************************************************/
 
 package com.disney.pg2k4j;
 
@@ -31,8 +31,8 @@ import java.util.Properties;
 
 public interface PostgresConfiguration {
 
-    static final String DEFAULT_PORT = "5432";
-    static final String MIN_SERVER_VERSION = "10.3";
+    String DEFAULT_PORT = "5432";
+    String MIN_SERVER_VERSION = "10.3";
 
     default String getPort() {
         return DEFAULT_PORT;
@@ -51,7 +51,8 @@ public interface PostgresConfiguration {
     }
 
     default String getUrl() {
-        return String.format("jdbc:postgresql://%s:%s/%s", getHost(), getPort(), getDatabase());
+        return String.format("jdbc:postgresql://%s:%s/%s", getHost(),
+                getPort(), getDatabase());
     }
 
     default Properties getReplicationProperties() {
@@ -65,7 +66,8 @@ public interface PostgresConfiguration {
         Properties properties = new Properties();
         PGProperty.USER.set(properties, getUsername());
         PGProperty.PASSWORD.set(properties, getPassword());
-        PGProperty.ASSUME_MIN_SERVER_VERSION.set(properties, getMinServerVersion());
+        PGProperty.ASSUME_MIN_SERVER_VERSION.set(properties,
+                getMinServerVersion());
         return properties;
     }
 
