@@ -60,6 +60,7 @@ public class KinesisReceivesPostgresChangesIT {
 
     @Test
     public void testCDC() throws Exception {
+        kinesisLocalStack.getAllRecords();
         postgres.insertRecords();
         int attempts = 0;
         boolean seenFuji = false;
