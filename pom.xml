@@ -181,6 +181,7 @@
                         <exclude>**/models/*</exclude>
                         <exclude>**/*Callback*</exclude>
                         <exclude>**/*Configuration*</exclude>
+                        <exclude>**/*CommandLineRunner*</exclude>
                     </excludes>
                 </configuration>
             </plugin>

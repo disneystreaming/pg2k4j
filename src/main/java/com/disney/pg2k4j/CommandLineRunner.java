@@ -16,7 +16,7 @@ public class CommandLineRunner implements
     private static final Logger logger = LoggerFactory.getLogger(
             CommandLineRunner.class);
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         final CommandLineRunner commandLineRunner = new CommandLineRunner();
         new CommandLine(commandLineRunner).parseArgs(args);
         new SlotReaderKinesisWriter(
