@@ -23,6 +23,7 @@ public class Postgres<SELF extends GenericContainer<SELF>> extends
     public static final String USER = "postgres";
     public static final String PASSWORD = "postgres";
     public static final String DATABASE = "test";
+    public static final String HOST = "pghost";
 
     private static final Logger logger = LoggerFactory.getLogger(Postgres
             .class);
@@ -38,7 +39,7 @@ public class Postgres<SELF extends GenericContainer<SELF>> extends
 
         this.withNetwork(network)
                 .withExposedPorts(5432)
-                .withNetworkAliases("post.gres")
+                .withNetworkAliases("pghost")
                 .withClasspathResourceMapping("pg_hba.conf", "/etc/pg_hba"
                         + ".conf", BindMode.READ_ONLY)
                 .withEnv("POSTGRES_USER", USER)
@@ -83,6 +84,15 @@ public class Postgres<SELF extends GenericContainer<SELF>> extends
                 + "id serial PRIMARY KEY,"
                 + "name VARCHAR (50) UNIQUE NOT NULL,"
                 + "quantity integer NOT NULL)";
+        try (final Connection conn = getConnection()) {
+            Statement st = conn.createStatement();
+            st.execute(sql);
+        }
+    }
+
+    public void insertRecords() throws SQLException {
+        String sql = "INSERT INTO apples(name, quantity) "
+                + "VALUES('Fuji', 3), ('Gala', 10)";
         try (final Connection conn = getConnection()) {
             Statement st = conn.createStatement();
             st.execute(sql);

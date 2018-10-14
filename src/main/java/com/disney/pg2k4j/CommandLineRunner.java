@@ -11,20 +11,29 @@ import picocli.CommandLine;
 public class CommandLineRunner implements
         PostgresConfiguration,
         ReplicationConfiguration,
-        KinesisProducerConfigurationFactory {
+        KinesisProducerConfigurationFactory,
+        Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(
             CommandLineRunner.class);
 
-    public static void main(final String[] args) {
+    public void run() {
+        new SlotReaderKinesisWriter(
+                this,
+                this,
+                this,
+                streamName
+        ).runLoop();
+    }
+
+    public static CommandLineRunner initialize(final String[] args) {
         final CommandLineRunner commandLineRunner = new CommandLineRunner();
         new CommandLine(commandLineRunner).parseArgs(args);
-        new SlotReaderKinesisWriter(
-                commandLineRunner,
-                commandLineRunner,
-                commandLineRunner,
-                commandLineRunner.streamName
-        ).runLoop();
+        return commandLineRunner;
+    }
+
+    public static void main(final String[] args) {
+        initialize(args).run();
     }
 
     @CommandLine.Option(
@@ -89,7 +98,8 @@ public class CommandLineRunner implements
 
     @CommandLine.Option(
             names = {"-r", "--region"},
-            description = "AWS region in which the Kinesis Stream is located."
+            description = "AWS region in which the Kinesis Stream is located.",
+            defaultValue = "us-east-1"
     )
     private String region;
 
@@ -167,5 +177,10 @@ public class CommandLineRunner implements
     @Override
     public String getPassword() {
         return pgPassword;
+    }
+
+    @Override
+    public String getPort() {
+        return pgPort;
     }
 }

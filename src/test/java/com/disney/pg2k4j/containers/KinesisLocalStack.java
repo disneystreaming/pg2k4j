@@ -7,6 +7,13 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.kinesis.AmazonKinesis;
 import com.amazonaws.services.kinesis.AmazonKinesisClientBuilder;
 import com.amazonaws.services.kinesis.model.DescribeStreamRequest;
+import com.amazonaws.services.kinesis.model.GetRecordsRequest;
+import com.amazonaws.services.kinesis.model.GetRecordsResult;
+import com.amazonaws.services.kinesis.model.GetShardIteratorRequest;
+import com.amazonaws.services.kinesis.model.GetShardIteratorResult;
+import com.amazonaws.services.kinesis.model.ListShardsRequest;
+import com.amazonaws.services.kinesis.model.ListShardsResult;
+import com.amazonaws.services.kinesis.model.ShardIteratorType;
 import com.amazonaws.services.kinesis.model.StreamDescription;
 import com.amazonaws.waiters.FixedDelayStrategy;
 import com.amazonaws.waiters.MaxAttemptsRetryStrategy;
@@ -29,7 +36,7 @@ public class KinesisLocalStack<SELF extends GenericContainer<SELF>> extends
     private static final int KINESIS_PORT = 4568;
     private static final String KINESIS_SERVICE_NAME = "kinesis";
     public static final String STREAM_NAME = "postgres_cdc";
-    public static final int NUM_SHARDS = 2;
+    public static final int NUM_SHARDS = 1;
     public AmazonKinesis client;
 
     private static final Logger logger =
@@ -103,6 +110,33 @@ public class KinesisLocalStack<SELF extends GenericContainer<SELF>> extends
 
     public StreamDescription getStreamDescription() {
         return client.describeStream(STREAM_NAME).getStreamDescription();
+
+    }
+
+    public GetRecordsResult getAllRecords() {
+        String shardId = client.describeStream(STREAM_NAME)
+                .getStreamDescription()
+                .getShards()
+                .get(0)
+                .getShardId();
+
+        String shardIterator;
+        GetShardIteratorRequest getShardIteratorRequest = new GetShardIteratorRequest();
+        getShardIteratorRequest.setStreamName(STREAM_NAME);
+        getShardIteratorRequest.setShardId(shardId);
+        getShardIteratorRequest.setShardIteratorType("TRIM_HORIZON");
+        GetRecordsRequest getRecordsRequest = new GetRecordsRequest();
+        GetShardIteratorResult getShardIteratorResult = client.getShardIterator(getShardIteratorRequest);
+        shardIterator = getShardIteratorResult.getShardIterator();
+        getRecordsRequest.setShardIterator(shardIterator);
+
+        return client.getRecords(getRecordsRequest);
+    }
+
+    public String getEndpoint() {
+        return String.format("http://%s:%d",
+                this.getContainerIpAddress(),
+                this.getFirstMappedPort());
     }
 
 }
