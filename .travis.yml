@@ -9,5 +9,4 @@ services:
 language: java
 
 script:
-  - docker build -t $dockerTag .
-  - docker run -e COVERALLS_TOKEN=$COVERALLS_TOKEN -w /src $dockerTag clean test jacoco:report coveralls:report
+  - COVERALLS_TOKEN=$COVERALLS_TOKEN mvn clean install jacoco:report coveralls:report
