@@ -41,6 +41,8 @@ public class KinesisReceivesPostgresChangesIT {
         assertEquals(KinesisLocalStack.STREAM_NAME, streamDescription.getStreamName());
         assertEquals(StreamStatus.ACTIVE.toString(), streamDescription.getStreamStatus());
         assertEquals(KinesisLocalStack.NUM_SHARDS, streamDescription.getShards().size());
+
+        postgres.createTable();
     }
 }
 

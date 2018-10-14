@@ -51,21 +51,23 @@ public class Postgres<SELF extends GenericContainer<SELF>> extends
     }
 
     public final String getVersion() throws SQLException {
-        final String url = String.format("jdbc:postgresql://%s:%d/%s",
-                this.getContainerIpAddress(),
-                this.getFirstMappedPort(),
-                DATABASE);
-
-        logger.info("Getting version for DB : {}", url);
-
-        try (final Connection con = DriverManager.getConnection(url, USER,
-                PASSWORD);
-             final Statement st = con.createStatement();
-             final ResultSet rs = st.executeQuery("SELECT VERSION()")) {
-
+        try (final Connection con = getConnection()) {
+            final Statement st = con.createStatement();
+            final ResultSet rs = st.executeQuery("SELECT VERSION()");
             rs.next();
             return rs.getString(1);
         }
+    }
+
+    String getUrl() {
+        return String.format("jdbc:postgresql://%s:%d/%s",
+                this.getContainerIpAddress(),
+                this.getFirstMappedPort(),
+                DATABASE);
+    }
+
+    Connection getConnection() throws SQLException{
+       return DriverManager.getConnection(getUrl(), USER, PASSWORD);
     }
 
     public String getHost() {
@@ -74,6 +76,17 @@ public class Postgres<SELF extends GenericContainer<SELF>> extends
 
     public int getPort() {
         return this.getFirstMappedPort();
+    }
+
+    public void createTable() throws SQLException {
+        String sql = "CREATE TABLE apples("
+                + "id serial PRIMARY KEY,"
+                + "name VARCHAR (50) UNIQUE NOT NULL,"
+                + "quantity integer NOT NULL)";
+        try (final Connection conn = getConnection()) {
+            Statement st = conn.createStatement();
+            st.execute(sql);
+        }
     }
 
 }
