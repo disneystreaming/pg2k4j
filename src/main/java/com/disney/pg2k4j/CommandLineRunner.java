@@ -107,8 +107,9 @@ public class CommandLineRunner implements
 
     @CommandLine.Option(
             names = {"-f", "--awsSecretsKey"},
-            description = "Access secret to use for accessing AWS Kinesis Stream."
-                    + "If provided, awsAccessKey (-e) must also be provided."
+            description = "Access secret to use for accessing AWS Kinesis "
+                    + " Stream. If provided, awsAccessKey (-e)"
+                    + " must also be provided."
     )
     private String awsSecretKey;
 
