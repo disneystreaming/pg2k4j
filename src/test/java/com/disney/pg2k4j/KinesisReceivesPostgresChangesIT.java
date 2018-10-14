@@ -51,7 +51,8 @@ public class KinesisReceivesPostgresChangesIT {
                         postgres.getHost(), "-u", Postgres.USER, "-x",
                         Postgres.PASSWORD, "-d", "test", "-s",
                         KinesisLocalStack.STREAM_NAME, "-k",
-                        kinesisLocalStack.getEndpoint()}
+                        kinesisLocalStack.getEndpoint(), "-e", "test",
+                        "-f", "test"}
         );
         t = new Thread(commandLineRunner);
         t.start();

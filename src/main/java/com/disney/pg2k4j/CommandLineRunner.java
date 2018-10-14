@@ -1,6 +1,8 @@
 package com.disney.pg2k4j;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.services.kinesis.producer.KinesisProducerConfiguration;
@@ -97,6 +99,20 @@ public class CommandLineRunner implements
     private String awsConfigLocation;
 
     @CommandLine.Option(
+            names = {"-e", "--awsAccessKey"},
+            description = "Access key to use for accessing AWS Kinesis Stream."
+                    + "If provided, awsSecretKey (-f) must also be provided."
+    )
+    private String awsAccessKey;
+
+    @CommandLine.Option(
+            names = {"-f", "--awsSecretsKey"},
+            description = "Access secret to use for accessing AWS Kinesis Stream."
+                    + "If provided, awsAccessKey (-e) must also be provided."
+    )
+    private String awsSecretKey;
+
+    @CommandLine.Option(
             names = {"-r", "--region"},
             description = "AWS region in which the Kinesis Stream is located.",
             defaultValue = "us-east-1"
@@ -122,6 +138,9 @@ public class CommandLineRunner implements
         if (awsProfile != null || awsConfigLocation != null) {
             final String profile = makeProfile(awsProfile);
             return new ProfileCredentialsProvider(awsConfigLocation, profile);
+        } else if (awsAccessKey != null && awsSecretKey != null) {
+            return new AWSStaticCredentialsProvider(
+                    new BasicAWSCredentials(awsAccessKey, awsSecretKey));
         } else {
             return new DefaultAWSCredentialsProviderChain();
         }
