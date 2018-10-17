@@ -12,11 +12,12 @@ install: true
 
 script:
   - nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"
-  - echo "Bumping version to $nextVersion"
-  - echo $nextVersion > .version
-  - revision=$nextVersion mvn clean install jacoco:report
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then revision=$nextVersion; else revision=$TRAVIS_BRANCH; fi
+  - revision=$revision mvn clean install jacoco:report
   - bash <(curl -s https://codecov.io/bash)
   # Push Bump, Tag, Release
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then echo "Bumping version to $nextVersion"; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; echo $nextVersion > .version; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git checkout $TRAVIS_BRANCH; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git add .version; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git commit -m "[skip travis] Bump Version"; fi
