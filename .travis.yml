@@ -26,3 +26,12 @@ script:
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git v$nextVersion; fi
   # Docker Build
   - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker build --build-arg version=$revision . -t ${dockerTag}
+  # Docker Login
+  - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin; fi
+  # Docker Push
+  - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker tag $dockerTag rkass/pg2k4j:latest
+  - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker tag $dockerTag rkass/pg2k4j:v$nextVersion
+
+
+
+
