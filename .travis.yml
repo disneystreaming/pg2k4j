@@ -11,11 +11,12 @@ language: java
 install: true
 
 script:
-  - mvn clean install jacoco:report
+  - nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"; fi
+  - echo "Bumping version to $nextVersion"; fi
+  - echo $nextVersion > .version; fi
+  - revision=$nextVersion mvn clean install jacoco:report
   - bash <(curl -s https://codecov.io/bash)
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then echo "Bumping version to $nextVersion"; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then echo $nextVersion > .version; fi
+  # Push Bump, Tag, Release
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git checkout $TRAVIS_BRANCH; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git add .version; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git commit -m "[skip travis] Bump Version"; fi
