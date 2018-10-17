@@ -28,9 +28,11 @@ script:
   - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker build --build-arg version=$revision . -t ${dockerTag}
   # Docker Login
   - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin; fi
-  # Docker Push
+  # Docker Tag
   - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker tag $dockerTag rkass/pg2k4j:latest
-  - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker tag $dockerTag rkass/pg2k4j:v$nextVersion
+  - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker tag $dockerTag rkass/pg2k4j:v$revision
+  # Docker Push
+  - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker push; fi
 
 
 
