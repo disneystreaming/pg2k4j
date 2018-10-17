@@ -11,9 +11,9 @@ language: java
 install: true
 
 script:
-  - nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"; fi
-  - echo "Bumping version to $nextVersion"; fi
-  - echo $nextVersion > .version; fi
+  - nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"
+  - echo "Bumping version to $nextVersion"
+  - echo $nextVersion > .version
   - revision=$nextVersion mvn clean install jacoco:report
   - bash <(curl -s https://codecov.io/bash)
   # Push Bump, Tag, Release
