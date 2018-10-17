@@ -68,8 +68,8 @@ public class KinesisReceivesPostgresChangesIT {
                         "--pgdatabase", "test",
                         "--streamname", KinesisLocalStack.STREAM_NAME,
                         "--kinesisendpoint", kinesisLocalStack.getEndpoint(),
-                        "--awsprofile", "test",
-                        "--awsconfiglocation", "test"
+                        "--awsaccesskey", "test",
+                        "--awssecret", "test"
                 }
         ).get();
         t = new Thread(commandLineRunner);
