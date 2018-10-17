@@ -120,7 +120,7 @@ public class CommandLineRunner implements
     )
     private String awsSecretKey;
 
-    @CommandLine.Option(
+    @@CommandLine.Option(
             names = {"--region"},
             description = "AWS region in which the Kinesis Stream is located.",
             defaultValue = "us-east-1"
