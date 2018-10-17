@@ -23,7 +23,7 @@
 
  ******************************************************************************/
 
-package com.disney.pg2k4j;
+package com.disneystreaming.pg2k4j;
 
 import org.postgresql.PGConnection;
 import org.postgresql.replication.LogSequenceNumber;

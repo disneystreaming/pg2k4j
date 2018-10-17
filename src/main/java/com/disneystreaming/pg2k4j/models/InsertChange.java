@@ -23,7 +23,7 @@
 
  ******************************************************************************/
 
-package com.disney.pg2k4j.models;
+package com.disneystreaming.pg2k4j.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -23,13 +23,13 @@
 
  ******************************************************************************/
 
-package com.disney.pg2k4j;
+package com.disneystreaming.pg2k4j;
 
 import com.amazonaws.services.kinesis.producer.KinesisProducer;
 import com.amazonaws.services.kinesis.producer.KinesisProducerConfiguration;
 import com.amazonaws.services.kinesis.producer.UserRecord;
 import com.amazonaws.services.kinesis.producer.UserRecordResult;
-import com.disney.pg2k4j.models.SlotMessage;
+import com.disneystreaming.pg2k4j.models.SlotMessage;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.util.concurrent.FutureCallback;

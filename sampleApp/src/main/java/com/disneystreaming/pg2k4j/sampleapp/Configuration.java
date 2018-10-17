@@ -47,21 +47,6 @@ public class Configuration implements PostgresConfiguration, ReplicationConfigur
         this.configurationSource = configurationSource;
     }
 
-    @Override
-    public KinesisProducerConfiguration getKinesisProducerConfiguration() {
-        final KinesisProducerConfiguration kinesisProducerConfig = new KinesisProducerConfiguration()
-                    .setCredentialsProvider(getAwsCredentialsProvider())
-                    .setRegion(configurationSource.region);
-            if (configurationSource.KINESIS_ENDPOINT_URL != null) {
-                // use localstack
-                final String[] endpointPort = configurationSource.KINESIS_ENDPOINT_URL.split(":");
-                kinesisProducerConfig.setKinesisEndpoint(endpointPort[endpointPort.length - 2].replace("/", ""))
-                        .setKinesisPort(Long.valueOf(endpointPort[endpointPort.length - 1]))
-                        .setVerifyCertificate(false);
-            }
-            return kinesisProducerConfig;
-    }
-
     private static AWSCredentialsProvider getAwsCredentialsProvider() {
         final String awsProfile = System.getenv(awsProfileEnvVariable);
         final String awsConfigLocation = System.getenv(awsConfigFileEnvVariable);
@@ -86,6 +71,20 @@ public class Configuration implements PostgresConfiguration, ReplicationConfigur
         }
     }
 
+    @Override
+    public KinesisProducerConfiguration getKinesisProducerConfiguration() {
+        final KinesisProducerConfiguration kinesisProducerConfig = new KinesisProducerConfiguration()
+                .setCredentialsProvider(getAwsCredentialsProvider())
+                .setRegion(configurationSource.region);
+        if (configurationSource.KINESIS_ENDPOINT_URL != null) {
+            // use localstack
+            final String[] endpointPort = configurationSource.KINESIS_ENDPOINT_URL.split(":");
+            kinesisProducerConfig.setKinesisEndpoint(endpointPort[endpointPort.length - 2].replace("/", ""))
+                    .setKinesisPort(Long.valueOf(endpointPort[endpointPort.length - 1]))
+                    .setVerifyCertificate(false);
+        }
+        return kinesisProducerConfig;
+    }
 
     @Override
     public String getHost() {

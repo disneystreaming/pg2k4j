@@ -23,7 +23,7 @@ language governing permissions and limitations under the Apache License.
 
  *******************************************************************************/
 
-package com.disney.pg2k4j;
+package com.disneystreaming.pg2k4j;
 
 import org.junit.Before;
 import org.junit.Rule;

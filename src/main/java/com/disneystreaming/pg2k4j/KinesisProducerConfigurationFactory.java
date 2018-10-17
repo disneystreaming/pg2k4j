@@ -23,34 +23,11 @@
 
  ******************************************************************************/
 
-package com.disney.pg2k4j.models;
+package com.disneystreaming.pg2k4j;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.amazonaws.services.kinesis.producer.KinesisProducerConfiguration;
 
-import java.util.List;
+public interface KinesisProducerConfigurationFactory {
 
-public class SlotMessage {
-
-    private final int xid;
-    private final List<Change> change;
-
-    @JsonCreator
-    public SlotMessage(
-            @JsonProperty(value = "xid", required = true) final int xidInput,
-            @JsonProperty(value = "change", required = true)
-            final List<Change> changeInput
-    ) {
-        this.xid = xidInput;
-        this.change = changeInput;
-    }
-
-    public int getXid() {
-        return xid;
-    }
-
-    public List<Change> getChange() {
-        return change;
-    }
-
+    KinesisProducerConfiguration getKinesisProducerConfiguration();
 }

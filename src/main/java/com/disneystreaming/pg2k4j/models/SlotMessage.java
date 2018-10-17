@@ -23,40 +23,34 @@
 
  ******************************************************************************/
 
-package com.disney.pg2k4j.models;
+package com.disneystreaming.pg2k4j.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class UpdateChange extends InsertChange {
+public class SlotMessage {
 
-    private final OldKeys oldkeys;
+    private final int xid;
+    private final List<Change> change;
 
     @JsonCreator
-    public UpdateChange(
-            @JsonProperty(value = "kind", required = true)
-            final String kindInput,
-            @JsonProperty(value = "columnnames", required = true)
-            final List<String> columnnamesInput,
-            @JsonProperty(value = "columntypes", required = true)
-            final List<String> columntypesInput,
-            @JsonProperty(value = "table", required = true)
-            final String tableInput,
-            @JsonProperty(value = "columnvalues", required = true)
-            final List<Object> columnvaluesInput,
-            @JsonProperty(value = "schema", required = true)
-            final String schemaInput,
-            @JsonProperty(value = "oldkeys", required = true)
-            final OldKeys oldkeysInput
+    public SlotMessage(
+            @JsonProperty(value = "xid", required = true) final int xidInput,
+            @JsonProperty(value = "change", required = true)
+            final List<Change> changeInput
     ) {
-        super(kindInput, columnnamesInput, columntypesInput,
-                tableInput, columnvaluesInput, schemaInput);
-        this.oldkeys = oldkeysInput;
+        this.xid = xidInput;
+        this.change = changeInput;
     }
 
-    public OldKeys getOldkeys() {
-        return oldkeys;
+    public int getXid() {
+        return xid;
     }
+
+    public List<Change> getChange() {
+        return change;
+    }
+
 }

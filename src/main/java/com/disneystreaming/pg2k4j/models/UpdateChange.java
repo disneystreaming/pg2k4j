@@ -23,52 +23,40 @@
 
  ******************************************************************************/
 
-package com.disney.pg2k4j.models;
+package com.disneystreaming.pg2k4j.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
-public class OldKeys {
-    private final List<String> keytypes;
-    private final List<Object> keyvalues;
-    private final List<String> keynames;
+public class UpdateChange extends InsertChange {
+
+    private final OldKeys oldkeys;
 
     @JsonCreator
-    public OldKeys(
-            @JsonProperty(value = "keytypes", required = true)
-            final List<String> keytypesInput,
-            @JsonProperty(value = "keyvalues", required = true)
-            final List<Object> keyvaluesInput,
-            @JsonProperty(value = "keynames", required = true)
-            final List<String> keynamesInput
-            ) {
-        this.keytypes = keytypesInput;
-        this.keyvalues = keyvaluesInput;
-        this.keynames = keynamesInput;
+    public UpdateChange(
+            @JsonProperty(value = "kind", required = true)
+            final String kindInput,
+            @JsonProperty(value = "columnnames", required = true)
+            final List<String> columnnamesInput,
+            @JsonProperty(value = "columntypes", required = true)
+            final List<String> columntypesInput,
+            @JsonProperty(value = "table", required = true)
+            final String tableInput,
+            @JsonProperty(value = "columnvalues", required = true)
+            final List<Object> columnvaluesInput,
+            @JsonProperty(value = "schema", required = true)
+            final String schemaInput,
+            @JsonProperty(value = "oldkeys", required = true)
+            final OldKeys oldkeysInput
+    ) {
+        super(kindInput, columnnamesInput, columntypesInput,
+                tableInput, columnvaluesInput, schemaInput);
+        this.oldkeys = oldkeysInput;
     }
 
-    public List<String> getKeytypes() {
-        return keytypes;
-    }
-
-    public List<Object> getKeyvalues() {
-        return keyvalues;
-    }
-
-    public List<String> getKeynames() {
-        return keynames;
-    }
-
-    @JsonIgnore
-    public List<String> getColumnnames() {
-        return getKeynames();
-    }
-
-    @JsonIgnore
-    public List<Object> getColumnvalues() {
-        return getKeyvalues();
+    public OldKeys getOldkeys() {
+        return oldkeys;
     }
 }
