@@ -13,7 +13,7 @@ install: true
 script:
   - nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"
   - if [ "$TRAVIS_BRANCH" = "master" ]; then revision=$nextVersion; else revision=$TRAVIS_BRANCH; fi
-  - revision=$revision mvnn clean install jacoco:report
+  - revision=$revision mvn clean install jacoco:report
   - bash <(curl -s https://codecov.io/bash)
 
 after_success:
