@@ -25,7 +25,7 @@ script:
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git tag -a v$nextVersion -m "Release v$nextVersion"; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git v$nextVersion; fi
   # Docker Build
-  - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker build --build-arg version=$revision . -t ${dockerTag}
+  - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker build --build-arg version=$revision . -t ${dockerTag}; fi
   # Docker Login
   - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin; fi
   # Docker Tag
