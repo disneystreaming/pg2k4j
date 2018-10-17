@@ -46,10 +46,41 @@ node("docker") {
 
         stage('Bump') {
             if (shouldRelease) {
+
                 version = source.bumpVersionFile("./.version")
                 source.pushBumpCommit(version, "bot.p13n")
             }
         }
+
+        ## push bump commit
+
+        def nextVersionTag = (nextVersion.startsWith("v")) ? "${nextVersion}" : "v${nextVersion}"
+        origin = "https://${env.GIT_USERNAME}:${env.GIT_PASSWORD}@github.bamtech.co/${orgName}/${repoName}"
+        sh "git config user.name Jenkins"
+        sh "git config user.email ContentDiscovery@bamtechmedia.com"
+
+        // bump
+        sh "git commit -m 'Bumping to ${nextVersionTag}'"
+        sh "git push ${origin} ${env.BRANCH_NAME}"
+
+        //tag
+        sh "git tag -a ${nextVersionTag} -m Release\\ ${nextVersionTag}"
+        sh "git push ${origin} ${nextVersionTag}"
+
+        ## bump version file
+
+          def currentVersion = sh(returnStdout: true, script: "cat ${filepath}").trim()
+          def nextVersion = getNextVersion(currentVersion)
+          def versionRegex = "'s/${currentVersion}/${nextVersion}/'"
+          bumpFile(filepath, versionRegex, nextVersion)
+          return nextVersion
+
+
+          ###
+          def getNextVersion(currentVersion) {
+              return sh(returnStdout: true, script: "echo '${currentVersion}' | awk -F. '{\$NF = \$NF + 1;} 1' | sed 's/ /./g'").trim()
+          }
+
 
         stage('DeployToArtifactory') {
             if (shouldRelease) {

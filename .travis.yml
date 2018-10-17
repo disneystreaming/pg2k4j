@@ -22,3 +22,5 @@ jobs:
     - stage: integration_tests
       script: mvn verify
       name: "Integration Tests"
+    - stage: release
+      script:
