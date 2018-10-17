@@ -71,7 +71,7 @@ public class KinesisReceivesPostgresChangesIT {
                         "--awsprofile", "test",
                         "--awsconfiglocation", "test"
                 }
-        );
+        ).get();
         t = new Thread(commandLineRunner);
         t.start();
     }
