@@ -104,7 +104,7 @@ public class KinesisLocalStack<SELF extends GenericContainer<SELF>> extends
         client.waiters().streamExists().run(waiterParameters);
     }
 
-    pblic GetRecordsResult getAllRecords() {
+    public GetRecordsResult getAllRecords() {
         String shardId = client.describeStream(STREAM_NAME)
                 .getStreamDescription()
                 .getShards()

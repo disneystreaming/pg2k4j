@@ -10,6 +10,11 @@ language: java
 
 install: true
 
-script:
-  - mvn clean test
-  - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then echo "on travisPipeline"; fi
+jobs:
+  include:
+    - stage: test
+      script: mvn clean test
+      name: "Unit Tests"
+    - stage: integration_tests
+      script: mvn clean verify
+      name: "Integration Tests"
