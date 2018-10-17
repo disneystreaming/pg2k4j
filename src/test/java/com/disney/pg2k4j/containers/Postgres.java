@@ -10,6 +10,7 @@ import org.testcontainers.containers.wait.strategy.WaitStrategy;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -90,13 +91,35 @@ public class Postgres<SELF extends GenericContainer<SELF>> extends
         }
     }
 
-    public void insertRecords() throws SQLException {
-        String sql = "INSERT INTO apples(name, quantity) "
-                + "VALUES('Fuji', 3), ('Gala', 10)";
+    public void insertApple(String name, int quantity) throws SQLException {
+        String sql = "INSERT INTO apples(name, quantity) VALUES(? , ?)";
         try (final Connection conn = getConnection()) {
-            Statement st = conn.createStatement();
-            st.execute(sql);
+            try (final PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, name);
+                ps.setInt(2, quantity);
+                ps.execute();
+            }
         }
     }
 
+    public void deleteApple(String name) throws SQLException {
+        String sql = "DELETE FROM apples WHERE name = ?";
+        try (final Connection conn = getConnection()) {
+            try (final PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(1, name);
+                ps.execute();
+            }
+        }
+    }
+
+    public void updateApple(String name, int quantity) throws SQLException {
+        String sql = "UPDATE apples SET quantity = ? WHERE name = ?";
+        try (final Connection conn = getConnection()) {
+            try (final PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setString(2, name);
+                ps.setInt(1, quantity);
+                ps.execute();
+            }
+        }
+    }
 }

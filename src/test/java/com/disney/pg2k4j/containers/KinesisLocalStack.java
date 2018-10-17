@@ -115,12 +115,14 @@ public class KinesisLocalStack<SELF extends GenericContainer<SELF>> extends
                 .get(0)
                 .getShardId();
 
-        GetShardIteratorRequest getShardIteratorRequest = new GetShardIteratorRequest();
+        GetShardIteratorRequest getShardIteratorRequest =
+                new GetShardIteratorRequest();
         getShardIteratorRequest.setStreamName(STREAM_NAME);
         getShardIteratorRequest.setShardId(shardId);
         getShardIteratorRequest.setShardIteratorType("TRIM_HORIZON");
         GetRecordsRequest getRecordsRequest = new GetRecordsRequest();
-        GetShardIteratorResult getShardIteratorResult = client.getShardIterator(getShardIteratorRequest);
+        GetShardIteratorResult getShardIteratorResult =
+                client.getShardIterator(getShardIteratorRequest);
         String shardIterator = getShardIteratorResult.getShardIterator();
         getRecordsRequest.setShardIterator(shardIterator);
 
