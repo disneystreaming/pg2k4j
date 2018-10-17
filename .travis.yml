@@ -32,7 +32,8 @@ script:
   - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker tag $dockerTag rkass/pg2k4j:latest; fi
   - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker tag $dockerTag rkass/pg2k4j:v$revision; fi
   # Docker Push
-  - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker push; fi
+  - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker push rkass/pg2k4j:latest; fi
+  - if [ "$TRAVIS_BRANCH" = "dockerPush" ]; then docker push rkass/pg2k4j:v$revision; fi
 
 
 
