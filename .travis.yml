@@ -10,14 +10,13 @@ language: java
 
 install: true
 
-matrix:
-  fast_finish: true
-
 script:
   - nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"
   - if [ "$TRAVIS_BRANCH" = "master" ]; then revision=$nextVersion; else revision=$TRAVIS_BRANCH; fi
-  - revision=$revision mvn clean install jacoco:report
+  - revision=$revision mvnn clean install jacoco:report
   - bash <(curl -s https://codecov.io/bash)
+
+after_success:
   # Push Bump, Tag, Release
   - if [ "$TRAVIS_BRANCH" = "master" ]; then echo "Bumping version to $nextVersion"; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then echo $nextVersion > .version; fi
