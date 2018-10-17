@@ -13,14 +13,16 @@ install: true
 stages:
   - name: test
 
-
 jobs:
   include:
     - stage: test
-      script: mvn clean test
+      script: mvn clean test jacoco:report
       name: "Unit Tests"
     - stage: integration_tests
       script: mvn verify
       name: "Integration Tests"
+    - stage: upload_coverage
+      script: bash <(curl -s https://codecov.io/bash)
+      name: "Upload Coverage Report"
     - stage: release
       script:
