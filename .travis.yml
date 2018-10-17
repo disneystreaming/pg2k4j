@@ -11,14 +11,14 @@ language: java
 install: true
 
 script:
-#  - mvn clean install jacoco:report
-#  - bash <(curl -s https://codecov.io/bash)
-  - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"; fi
-  - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then echo "Bumping version to $nextVersion"; fi
-  - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then echo $nextVersion > .version; fi
-  - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then git checkout $TRAVIS_BRANCH; fi
-  - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then git add .version; fi
-  - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then git commit -m "[skip travis] Bump Version"; fi
-  - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git $TRAVIS_BRANCH; fi
-  - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then git tag -a v$nextVersion -m "Release v$nextVersion"; fi
-  - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git v$nextVersion; fi
+  - mvn clean install jacoco:report
+  - bash <(curl -s https://codecov.io/bash)
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then echo "Bumping version to $nextVersion"; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then echo $nextVersion > .version; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then git checkout $TRAVIS_BRANCH; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then git add .version; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then git commit -m "[skip travis] Bump Version"; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git $TRAVIS_BRANCH; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then git tag -a v$nextVersion -m "Release v$nextVersion"; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git v$nextVersion; fi
