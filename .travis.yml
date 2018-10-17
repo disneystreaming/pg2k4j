@@ -9,4 +9,5 @@ services:
 language: java
 
 script:
-  - COVERALLS_TOKEN=$COVERALLS_TOKEN mvn clean install jacoco:report coveralls:report
+  - COVERALLS_TOKEN=$COVERALLS_TOKEN mvn clean install jacoco:report
+  - bash <(curl -s https://codecov.io/bash)
