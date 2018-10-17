@@ -1,16 +1,6 @@
-FROM maven:latest
+FROM java:8
 
-RUN apt-get update
-RUN apt-get install -y bash curl
+ARG version
 
-# Copy the entire project into the image
-COPY . /src
-
-# This will prefix all runable commands
-ENTRYPOINT ["mvn"]
-CMD ["clean"]
-
-# A few examples of what to do :
-# docker build . -t pg2k4j
-# docker run -w /src pg2k4j test
-# docker run -w /src pg2k4j deploy
+COPY target/pg2k4j-$version-jar-with-dependencies.jar /pg2k4j-jar-with-dependencies.jar
+CMD ["sh", "-c", "java $JAVA_OPTS -jar /pg2k4j-jar-with-dependencies.jar"]
