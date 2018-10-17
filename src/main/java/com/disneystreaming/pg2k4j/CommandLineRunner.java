@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
+import java.util.Optional;
+
 public class CommandLineRunner implements
         PostgresConfiguration,
         ReplicationConfiguration,
@@ -28,60 +30,65 @@ public class CommandLineRunner implements
         ).runLoop();
     }
 
-    public static CommandLineRunner initialize(final String[] args) {
+    public static Optional<CommandLineRunner> initialize(final String[] args) {
         final CommandLineRunner commandLineRunner = new CommandLineRunner();
         new CommandLine(commandLineRunner).parseArgs(args);
-        return commandLineRunner;
+        if (commandLineRunner.usageHelpRequested) {
+            CommandLine.usage(new CommandLineRunner(), System.out);
+            return Optional.empty();
+        } else {
+            return Optional.of(commandLineRunner);
+        }
     }
 
     public static void main(final String[] args) {
-        initialize(args).run();
+        initialize(args).ifPresent(CommandLineRunner::run);
     }
 
     @CommandLine.Option(
-            names = {"-p", "--pgport"},
+            names = {"--pgport"},
             description = "Port that the postgres server is running on",
             defaultValue = "5432"
     )
     private String pgPort;
 
     @CommandLine.Option(
-            names = {"-h", "--pghost"},
+            names = {"--pghost"},
             description = "Host that the postgres server is running on",
             required = true
     )
     private String pgHost;
 
     @CommandLine.Option(
-            names = {"-u", "--pguser"},
+            names = {"--pguser"},
             description = "Username for the postgres server",
             required = true
     )
     private String pgUser;
 
     @CommandLine.Option(
-            names = {"-x", "--pgpassword"},
+            names = {"--pgpassword"},
             description = "Password for the postgres server",
             required = true
     )
     private String pgPassword;
 
     @CommandLine.Option(
-            names = {"-d", "--pgdatabase"},
+            names = {"--pgdatabase"},
             description = "Database of the postgres server",
             required = true
     )
     private String pgDatabase;
 
     @CommandLine.Option(
-            names = {"-s", "--streamName"},
+            names = {"--streamname"},
             description = "The name of the kinesis stream",
             required = true
     )
     private String streamName;
 
     @CommandLine.Option(
-            names = {"-a", "--awsProfile"},
+            names = {"--awsprofile"},
             description = "AWS Profile to use for accessing the Kinesis Stream."
                     + " If one is provided a ProfileCredentialProvider will"
                     + " be used for interacting with AWS. Otherwise the"
@@ -90,7 +97,7 @@ public class CommandLineRunner implements
     private String awsProfile;
 
     @CommandLine.Option(
-            names = {"-c", "--awsConfigLocation"},
+            names = {"--awsconfiglocation"},
             description = "File path to use for sourcing AWS config."
                     + " If one is provided a ProfileCredentialProvider will"
                     + " be used for interacting with AWS. Otherwise the"
@@ -99,14 +106,14 @@ public class CommandLineRunner implements
     private String awsConfigLocation;
 
     @CommandLine.Option(
-            names = {"-e", "--awsAccessKey"},
+            names = {"--awsaccesskey"},
             description = "Access key to use for accessing AWS Kinesis Stream."
                     + "If provided, awsSecretKey (-f) must also be provided."
     )
     private String awsAccessKey;
 
     @CommandLine.Option(
-            names = {"-f", "--awsSecretsKey"},
+            names = {"--awssecret"},
             description = "Access secret to use for accessing AWS Kinesis "
                     + " Stream. If provided, awsAccessKey (-e)"
                     + " must also be provided."
@@ -114,26 +121,31 @@ public class CommandLineRunner implements
     private String awsSecretKey;
 
     @CommandLine.Option(
-            names = {"-r", "--region"},
+            names = {"--region"},
             description = "AWS region in which the Kinesis Stream is located.",
             defaultValue = "us-east-1"
     )
     private String region;
 
     @CommandLine.Option(
-            names = {"-k", "--kinesisEndpoint"},
+            names = {"--kinesisendpoint"},
             description = "Endpoint to use for interacting with Kinesis. Set"
                     + " this if configuring pg2k4j against localstack kinesis."
     )
     private String kinesisEndpoint;
 
     @CommandLine.Option(
-            names = {"-n", "--slotName"},
+            names = {"--slotname"},
             description = "Slot name to use when reading Postgres changes.",
             required = false,
             defaultValue = "pg2k4j"
     )
     private String slotName;
+
+    @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true,
+            description = "Process that forwards postgres changes to a "
+                    + "Kinesis Stream.")
+    private boolean usageHelpRequested;
 
     private AWSCredentialsProvider getAwsCredentialsProvider() {
         if (awsProfile != null || awsConfigLocation != null) {

@@ -60,12 +60,17 @@ public class KinesisReceivesPostgresChangesIT {
         kinesisLocalStack.createAndWait();
         postgres.createTable();
         CommandLineRunner commandLineRunner = CommandLineRunner.initialize(
-                new String[]{"-p", String.valueOf(postgres.getPort()), "-h",
-                        postgres.getHost(), "-u", Postgres.USER, "-x",
-                        Postgres.PASSWORD, "-d", "test", "-s",
-                        KinesisLocalStack.STREAM_NAME, "-k",
-                        kinesisLocalStack.getEndpoint(), "-e", "test",
-                        "-f", "test"}
+                new String[]{
+                        "--pgport", String.valueOf(postgres.getPort()),
+                        "--pghost", postgres.getHost(),
+                        "--pguser", Postgres.USER,
+                        "--pgpassword", Postgres.PASSWORD,
+                        "--pgdatabase", "test",
+                        "--streamname", KinesisLocalStack.STREAM_NAME,
+                        "--kinesisendpoint", kinesisLocalStack.getEndpoint(),
+                        "--awsprofile", "test",
+                        "--awsconfiglocation", "test"
+                }
         );
         t = new Thread(commandLineRunner);
         t.start();
