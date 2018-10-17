@@ -9,4 +9,5 @@ services:
 language: java
 
 script:
-  - COVERALLS_TOKEN=$COVERALLS_TOKEN mvn clean install jacoco:report coveralls:report
+  - mvn clean test
+  - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then echo "on travisPipeline"; fi
