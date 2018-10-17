@@ -11,7 +11,20 @@ language: java
 install: true
 
 script:
-  - mvn clean install jacoco:report
-  - bash <(curl -s https://codecov.io/bash)
-  - nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"
-  - echo $nextVersion
+#  - mvn clean install jacoco:report
+#  - bash <(curl -s https://codecov.io/bash)
+  - if [ "$TRAVIS_BRANCH" = "travisPipeline"]; then nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"; fi
+  - if [ "$TRAVIS_BRANCH" = "travisPipeline"]; then echo "Bumping version to $nextVersion"; fi
+  - if [ "$TRAVIS_BRANCH" = "travisPipeline"]; then echo $nextVersion > .version; fi
+#  - if [ "$TRAVIS_BRANCH" = "travisPipeline"]; then git add .version; fi
+#  - if [ "$TRAVIS_BRANCH" = "travisPipeline"]; then git commit -m "[skip travis] Bump Version"; fi
+
+
+deploy:
+  provider: releases
+  api_key:
+    secure: FSqTfh0Zoj1S5fz8I+edTNIl4eyLaJ4HulV1lS0HIMkCIev1+ymrE+R4PblLw1DG9JsC3C7hDtgwz+o6l/z3qCrzuEIJfaO4ySwhhkYErN908BbTUycq9pDdYc5x5Lbt5sxx03lTXX78glXcrRFovMgPI3RyfvGnWwUNsE+piRE6ayM0HJFQh+jfajI78nJhGNPCV6PwZaHPKRTxaxJcHQeXoI3szoLF6nRIB+x6ly91vJV9OMegMEWbmHGWEKpJsVRplASP66UNSu9XKWR23rLMI/yWP4FwQMURXX69RBvwBHfLANnykky0hPv/xhNl2INhtyskTmUIdxC8wQo+yjIkKq6uEB9L1pb+KgMAESf/aqfM6CWOZXPKOb/O0TqnO8WqAKSY1dDvOO25rZ7iI0A/MqV0YBjpizSYkryP7AE0vWachMcsaA8jJiBDAMFrIcuxPiaJnQz73w0foITlle/MKaD1mBZL0ghdO1TmULlz2CkUayrNi5Ax55nSGNqZK5efRLqAW1mSqz1l6u4vlBviFIeTF+urCXDfCKA1kElsh2NVUkrZRX9iRX8Hjc+1LDtrIUmnnMyKl1KGM5U+l4HgwywZB66b4NEcY80QDX/ptCr0pvzGSTsjKRO1dMPWTjOpe4JXHu4VcI/2a/yV4YOwBdeq4jFCsWZFS4RHUic=
+  file: .version
+  on:
+    repo: disneystreaming/pg2k4j
+    branch: travisPipeline
