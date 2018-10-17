@@ -8,6 +8,8 @@ services:
 
 language: java
 
+install: /bin/true
+
 script:
   - mvn clean test
   - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then echo "on travisPipeline"; fi
