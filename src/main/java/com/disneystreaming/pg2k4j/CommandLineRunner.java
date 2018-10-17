@@ -143,8 +143,7 @@ public class CommandLineRunner implements
     private String slotName;
 
     @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true,
-            description = "Process that forwards postgres changes to a "
-                    + "Kinesis Stream.")
+            description = "Display this message")
     private boolean usageHelpRequested;
 
     private AWSCredentialsProvider getAwsCredentialsProvider() {
