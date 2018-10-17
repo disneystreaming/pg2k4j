@@ -16,6 +16,6 @@ script:
   - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"; fi
   - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then echo "Bumping version to $nextVersion"; fi
   - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then echo $nextVersion > .version; fi
-  - if [ "$TRAVIS_BRANCH" = "travisPipeline"]; then git add .version; fi
-  - if [ "$TRAVIS_BRANCH" = "travisPipeline"]; then git commit -m "[skip travis] Bump Version"; fi
+  - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then git add .version; fi
+  - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then git commit -m "[skip travis] Bump Version"; fi
   - if [ "$TRAVIS_BRANCH" = "travisPipeline" ]; then git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git $TRAVIS_BRANCH; fi
