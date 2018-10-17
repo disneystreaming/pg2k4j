@@ -241,7 +241,6 @@ public class KinesisReceivesPostgresChangesIT {
     List<SlotMessage> getAllSlotMessagesFromKinesisStream() throws Exception {
         List<SlotMessage> ret = new ArrayList<>();
         for (Record record : kinesisLocalStack.getAllRecords().getRecords()) {
-            com.disney.pg2k4j.models.SlotMessage s = null;
             try {
                 ret.add(objectMapper.readValue(record.getData().array(),
                         SlotMessage.class));
