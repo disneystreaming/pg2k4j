@@ -10,7 +10,8 @@ language: java
 
 install: true
 
-fast_finish: true
+matrix:
+  fast_finish: true
 
 script:
   - nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"
