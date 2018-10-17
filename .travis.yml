@@ -10,11 +10,15 @@ language: java
 
 install: true
 
+stages:
+  - name: test
+
+
 jobs:
   include:
     - stage: test
       script: mvn clean test
       name: "Unit Tests"
     - stage: integration_tests
-      script: mvn clean verify
+      script: mvn verify
       name: "Integration Tests"
