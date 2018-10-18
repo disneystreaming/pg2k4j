@@ -72,7 +72,8 @@ public class SlotReaderCallback implements FutureCallback<UserRecordResult> {
         if (logger.isTraceEnabled()) {
             logger.trace("Setting stream last applied and last flush lsn to {}",
                     lsn);
-            logger.trace("Successfully Put record on stream {} to shard {} "
+            logger.trace("Successfully Put record with data {} "
+                           + "on stream to shard {} "
                            + "with sequence number {} after {} attempts",
                     new String(userRecord.getData().array()),
                     result.getShardId(),
