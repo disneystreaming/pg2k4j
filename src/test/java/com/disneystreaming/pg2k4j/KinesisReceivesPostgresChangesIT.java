@@ -1,16 +1,24 @@
 package com.disneystreaming.pg2k4j;
 
 import com.amazonaws.SDKGlobalConfiguration;
-import com.amazonaws.services.kinesis.model.Record;
-import com.disneystreaming.pg2k4j.containers.KinesisLocalStack;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
+import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.ResourceNotFoundException;
+import com.amazonaws.services.dynamodbv2.model.ScanRequest;
+import com.amazonaws.services.dynamodbv2.model.ScanResult;
+import com.disneystreaming.pg2k4j.containers.KinesisDynamoLocalStack;
 import com.disneystreaming.pg2k4j.containers.Postgres;
 import com.disneystreaming.pg2k4j.models.Change;
 import com.disneystreaming.pg2k4j.models.DeleteChange;
 import com.disneystreaming.pg2k4j.models.InsertChange;
 import com.disneystreaming.pg2k4j.models.SlotMessage;
 import com.disneystreaming.pg2k4j.models.UpdateChange;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.disneystreaming.pg2k4j.testresources
+        .SlotMessageRecordProcessorFactory;
 import com.google.common.collect.ImmutableMap;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -19,14 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testcontainers.containers.Network;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -37,28 +40,34 @@ public class KinesisReceivesPostgresChangesIT {
             LoggerFactory.getLogger(KinesisReceivesPostgresChangesIT.class);
 
     private static final Network network = Network.newNetwork();
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static Thread t;
-    private static final int GET_RECORDS_ATTEMPTS = 10;
+    private static Thread slotReaderKinesisWriterThread;
+    private static Thread kclThread;
+    private static final int GET_RECORDS_ATTEMPTS = 15;
+    private static SlotMessageRecordProcessorFactory
+            slotMessageRecordProcessorFactory;
 
     @ClassRule
     public static Postgres postgres = new Postgres(network);
 
     @ClassRule
-    public static KinesisLocalStack kinesisLocalStack =
-            new KinesisLocalStack(network);
+    public static KinesisDynamoLocalStack kinesisDynamoLocalStack =
+            new KinesisDynamoLocalStack(network);
 
     @BeforeClass
-    public static void init() throws InterruptedException,
-            IOException, ExecutionException, SQLException {
+    public static void init() throws Exception {
         System.setProperty(
                 SDKGlobalConfiguration.DISABLE_CERT_CHECKING_SYSTEM_PROPERTY,
                 "true");
         System.setProperty(
                 SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY,
                 "true");
-        kinesisLocalStack.createAndWait();
+        kinesisDynamoLocalStack.createAndWait();
         postgres.createTable();
+        slotMessageRecordProcessorFactory = new
+                SlotMessageRecordProcessorFactory(
+                        kinesisDynamoLocalStack.getEndpointConfiguration(false).getServiceEndpoint(),
+                kinesisDynamoLocalStack.getEndpointConfiguration(true).getServiceEndpoint(),
+                kinesisDynamoLocalStack.STREAM_NAME);
         CommandLineRunner commandLineRunner = CommandLineRunner.initialize(
                 new String[]{
                         "--pgport", String.valueOf(postgres.getPort()),
@@ -66,19 +75,24 @@ public class KinesisReceivesPostgresChangesIT {
                         "--pguser", Postgres.USER,
                         "--pgpassword", Postgres.PASSWORD,
                         "--pgdatabase", "test",
-                        "--streamname", KinesisLocalStack.STREAM_NAME,
-                        "--kinesisendpoint", kinesisLocalStack.getEndpoint(),
+                        "--streamname", KinesisDynamoLocalStack.STREAM_NAME,
+                        "--kinesisendpoint",
+                        kinesisDynamoLocalStack.getKinesisEndpoint(),
                         "--awsaccesskey", "test",
                         "--awssecret", "test"
                 }
         ).get();
-        t = new Thread(commandLineRunner);
-        t.start();
+        kclThread = new Thread(slotMessageRecordProcessorFactory);
+        kclThread.start();
+        slotMessageRecordProcessorFactory.waitForConsumer();
+        slotReaderKinesisWriterThread = new Thread(commandLineRunner);
+        slotReaderKinesisWriterThread.start();
+        logger.info("Infrastructure initialized, starting tests...");
+        Thread.sleep(3000);
     }
 
     @Test
     public void testInsertAndDeleteForwardedToStream() throws Exception {
-        kinesisLocalStack.getAllRecords();
         Map<String, Integer> appleNamesToQuantities = ImmutableMap.of(
                 "Fuji", 2,
                 "Gala", 3
@@ -93,7 +107,6 @@ public class KinesisReceivesPostgresChangesIT {
 
     @Test
     public void testInsertAndUpdateForwardedToStream() throws Exception {
-        kinesisLocalStack.getAllRecords();
         Map<String, Integer> appleNamesToQuantitiesInsert = ImmutableMap.of(
                 "Macintosh", 5,
                 "Granny Smith", 7
@@ -154,7 +167,8 @@ public class KinesisReceivesPostgresChangesIT {
                     + " Sleeping for a second then retrying.");
             Thread.sleep(1000);
             attempts += 1;
-            for(SlotMessage s: getAllSlotMessagesFromKinesisStream()) {
+            for(SlotMessage s: slotMessageRecordProcessorFactory
+                    .slotMessageRecordProcessor.slotMessages) {
                     for (Change c : s.getChange()) {
                         if (c.getKind().equals("insert")) {
                             verifyInsertHelper(seenMap, appleNamesToQuantities,
@@ -239,32 +253,6 @@ public class KinesisReceivesPostgresChangesIT {
             Map<String, Integer> appleNamesToQuantities) throws Exception {
         verifyPostgresRecordsAppearOnKinesisStream(appleNamesToQuantities,
                 "update");
-    }
-
-    List<SlotMessage> getAllSlotMessagesFromKinesisStream() throws Exception {
-        List<SlotMessage> ret = new ArrayList<>();
-        for (Record record : kinesisLocalStack.getAllRecords().getRecords()) {
-            try {
-                ret.add(objectMapper.readValue(record.getData().array(),
-                        SlotMessage.class));
-            } catch (JsonParseException jpe) {
-                String serializedSlotMessages = new String(
-                        record.getData().array());
-                int start = serializedSlotMessages.indexOf("{");
-                int end = serializedSlotMessages.lastIndexOf("}");
-                String trimmedRecords = serializedSlotMessages
-                        .substring(start, end + 1);
-                String sanitizedRecords = ("["
-                        + trimmedRecords
-                                .replaceAll("[^A-Za-z0-9,{}:\\[\\]\"]", "")
-                        + "]").replace(" ", "").replace("}{", "},{");
-                SlotMessage[] ss =
-                        objectMapper.readValue(sanitizedRecords,
-                                SlotMessage[].class);
-                ret.addAll(Arrays.asList(ss));
-            }
-        }
-        return ret;
     }
 }
 
