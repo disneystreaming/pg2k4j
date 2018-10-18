@@ -22,9 +22,10 @@ after_success:
   - if [ "$TRAVIS_BRANCH" = "master" ]; then echo $nextVersion > .version; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git checkout $TRAVIS_BRANCH; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git add .version; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then previousCommitMessage="$(git log -1 --pretty=%B)"; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git commit -m "[skip travis] Bump Version"; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git $TRAVIS_BRANCH; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then git tag -a v$nextVersion -m "Release v$nextVersion"; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then git tag -a v$nextVersion -m "Release v$nextVersion \n $previousCommitMessage"; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git v$nextVersion; fi
   # Docker Build
   - if [ "$TRAVIS_BRANCH" = "master" ]; then docker build --build-arg version=$revision . -t ${dockerTag}; fi
