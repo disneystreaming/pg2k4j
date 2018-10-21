@@ -1,53 +1,67 @@
 
 [![Build Status](https://travis-ci.com/disneystreaming/pg2k4j.svg?branch=master)](https://travis-ci.com/disneystreaming/pg2k4j) [![codecov](https://codecov.io/gh/disneystreaming/pg2k4j/branch/master/graph/badge.svg)](https://codecov.io/gh/disneystreaming/pg2k4j)
 
-# pg2k4j
+## pg2k4j
 
-## Overview
-pg2k4j uses [logical decoding](https://www.postgresql.org/docs/9.4/static/logicaldecoding.html) to capture a continuous stream of events from a Postgres database and publishes them to an [AWS Kinesis](https://aws.amazon.com/kinesis/) stream.
-It does this without requiring any changes to your data models, and guarantees each record is published to Kinesis at least once.
-It is only in rare cases of database reboots and process crashes that records may be published more than once.
+### Postgresql To Kinesis For Java
 
-Inspired by [pg2kinesis](https://github.com/handshake/pg2kinesis), this library aims to be more feature rich and performant than its Python counterpart. pg2k4j 
-can keep up with heavy write workloads of more than 1 million inserts and updates per minute. 
+A tool for publishing inserts, updates, and deletes made to a [Postgresql](https://www.postgresql.org/) database to an [Amazon Kinesis](https://aws.amazon.com/kinesis/) Stream.
+pg2k4j may be run as a stand-alone application from the command line, or used as a Java library where its functionality
+can be extended and customized.
 
-Use pg2k4j by creating an instance of `SlotReaderKinesisWriter` and calling `runLoop` on that instance. This will automatically
-provision a replication slot in the Postgres database through which it reads chunks of the [WAL](https://www.postgresql.org/docs/current/static/wal-intro.html).
-`SlotReaderKinesisWriter` may be subclassed and configured to fit any use case involving reading the Postgres transaction log.
-By default `SlotReaderKinesisWriter` uses the [wal2json](https://github.com/eulerto/wal2json) output plugin to deserialize messages from the logical replication slot into
-`SlotMessage`s. The default implementation then writes out this class as json, and puts these bytes onto Kinesis using the
-[Java KPL](https://github.com/awslabs/amazon-kinesis-producer/tree/master/java).
+### Getting Started
+
+First, setup your Postgres database to support [logical replication](https://www.postgresql.org/docs/10/static/logical-replication.html) and create an AWS Kinesis Stream.
  
-When the KPL alerts the registered callback that it has successfully written to the stream, the registered callback will advance the LSN of the slot appropriately,
-freeing up disk space in the postgres instance. The LSN of a replication slot will also be advanced during periods of inactivity on its slot.
-During these times, the WAL is still being populated with data, but this data is unrelated to the replication slot. 
+#### Run pg2k4j as a Stand-alone Application
+Download [Docker](https://www.docker.com/get-started) and login with your docker credentials to gain access to the [pg2k4j docker repository](https://hub.docker.com/r/rkass/pg2k4j/).
+Then run the command below.
+```
+docker run -v /path/to/.aws/creds/:/aws_creds 
+rkass/pg2k4j 
+--awsconfiglocation=/aws_creds
+--pgdatabase=<your_postgres_db> --pghost=<your_postgres_host> --pguser=<your_postgres_user> --pgpassword=<your_postgres_pw> 
+--streamname=<your_kinesis_streamname>
+``` 
 
-Note that the provided default configurations have been load tested and are being used in production. 
+When you observe the below log, pg2k4j is set to publish changes to Kinesis.
 
-## Getting Started
+```
+[main] INFO com.disneystreaming.pg2k4j.SlotReaderKinesisWriter - Consuming from slot pg2k4j
+ ```
+ 
+#### Use as a Java Library
 
-Refer to the [sample app](sampleApp) for getting started.
-To include this in a current project use the following maven snippet
+pg2k4j artifacts are published to [maven central](https://mvnrepository.com/artifact/com.disneystreaming/pg2k4j)
+
+##### Maven
 
 ```
 <dependency>
-    <groupId>com.disney.pg2k4j</groupId>
+    <groupId>com.disneystreaming.pg2k4j</groupId>
     <artifactId>pg2k4j</artifactId>
     <version>LATEST</version>
 </dependency>
 ```
 
+##### Gradle
 
-## Contributing
-
-Be sure that tests pass and that any new code introduced has corresponding [unit tests](src/test/java/com/disney/pg2k4j). Run tests with 
-
-```bash
->> mvn clean test
-Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
+```
+compile group: 'com.disneystreaming.pg2k4j', name: 'pg2k4j', version: 'LATEST'
 ```
 
-1. Submit a pr with a description detailing what this code does, and what bug or feature it addresses. Any methods
-containing substantial logic should include javadocs.
+##### SBT
 
-2. Contributors are required to fill out a CLA in order for us to be allowed to accept contributions. See [CLA-Individual](CLA-Individual.md) or [CLA-Corporate](CLA-Corporate.md) for details.
+```
+libraryDependencies += "info.pg2k4j" % "pg2k4j" % "LATEST"
+```
+
+To initialize and begin publishing database changes to Kinesis, create a [SlotReaderKinesisWriter](https://github.com/disneystreaming/pg2k4j/blob/master/src/main/java/com/disneystreaming/pg2k4j/SlotReaderKinesisWriter.java) 
+and call its [runLoop](https://github.com/disneystreaming/pg2k4j/blob/master/src/main/java/com/disneystreaming/pg2k4j/SlotReaderKinesisWriter.java#L84) method.
+
+### Why We Wrote pg2k4j
+
+pg2k4j is an implementation of a powerful design pattern called [Change Data Capture](https://en.wikipedia.org/wiki/Change_data_capture).
+By using pg2k4j, anyone can know the state of your database at any point in time by consuming from the Kinesis Stream.
+At DSS we have rapidly changing datasets that many teams need to access and process in their own way. Using pg2k4j
+alleviates the need to grant each tea
