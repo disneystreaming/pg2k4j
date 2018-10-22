@@ -83,7 +83,7 @@ up with write throughputs of over 1 million records per minute.
 
 A replication slot will stream changes made to the database to the listener of the replication slot in the format specified
 by the plugin used for that replication slot. By default pg2k4j uses the [wal2json](https://github.com/eulerto/wal2json) plugin
-which outputs a json representation of a [SlotMessage][(https://github.com/disneystreaming/pg2k4j/blob/master/src/main/java/com/disneystreaming/pg2k4j/models/SlotMessage.java) to the 
+which outputs a json representation of a [SlotMessage](src/main/java/com/disneystreaming/pg2k4j/models/SlotMessage.java) to the 
 listening thread. Postgres writes all data changes to the [Write Ahead Log](https://www.postgresql.org/docs/10/static/wal-intro.html), which
 as well as ensuring data integrity and crash safety, make it possible to perform logical replication and for applications like
 pg2k4j to exist. Each replication slot maintains a pointer to a position in the WAL, indicating the last sequence number this replication
@@ -152,7 +152,7 @@ selecting `Postgresql` for the DB engine and `Postgresql 10.3-R1` for the DB eng
 
 As shown below, associate the parameter group you created in the previous step with this instance.
 
-![Associate Parameter Group](exampleImages/associateParamGroup.png)
+![Associate Parameter Group](exampleImages/associateParameterGroup.png)
 
 #### Create Kinesis Stream
 
