@@ -79,7 +79,7 @@ Kinesis Producer Library](https://docs.aws.amazon.com/streams/latest/dev/develop
 
 ##### 1. pg2k4j Opens up a [Logical Replication Slot](https://www.postgresql.org/docs/10/static/logicaldecoding-explanation.html#LOGICALDECODING-REPLICATION-SLOTS) on the Postgresql database.
 
-A replication slot will stream changes made to the database to the listener of the replication slot in the format specified
+A replication slot will stream changes made on the database to the listener of the replication slot in the format specified
 by the plugin used for that replication slot. By default pg2k4j uses the [wal2json](https://github.com/eulerto/wal2json) plugin
 which outputs a json representation of a [SlotMessage](src/main/java/com/disneystreaming/pg2k4j/models/SlotMessage.java) to the 
 listening thread. Postgres writes all data changes to the [Write Ahead Log](https://www.postgresql.org/docs/10/static/wal-intro.html), which
