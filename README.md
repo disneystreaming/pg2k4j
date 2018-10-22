@@ -82,7 +82,7 @@ Kinesis Producer Library](https://docs.aws.amazon.com/streams/latest/dev/develop
 A replication slot will stream changes made on the database to the listener of the replication slot in the format specified
 by the plugin used for that replication slot. By default pg2k4j uses the [wal2json](https://github.com/eulerto/wal2json) plugin
 which outputs a json representation of a [SlotMessage](src/main/java/com/disneystreaming/pg2k4j/models/SlotMessage.java) to the 
-listening thread. Postgres writes all data changes to the [Write Ahead Log](https://www.postgresql.org/docs/10/static/wal-intro.html), which
+listening thread. Postgres writes all data changes to the [Write Ahead Log](https://www.postgresql.org/docs/10/static/wal-intro.html), which,
 as well as ensuring data integrity and crash safety, makes it possible to perform logical replication. Each replication slot maintains a pointer to a position in the WAL, indicating the last sequence number this replication
 slot has processed. This pointer allows Postgres to flush all sections of the WAL which occurred before this sequence number. Crucially, if the
 application maintaining the replication slot does not update this sequence number, the storage space on the database will fill up because
