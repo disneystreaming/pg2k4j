@@ -159,7 +159,7 @@ In AWS console navigate to Kinesis, and create a stream.
 
 ### Contributing
 
-1. Fork the repo and submit a pr with a description detailing what this code does, and what bug or feature it addresses. Any methods
+Fork the repo and submit a pr with a description detailing what this code does and what bug or feature it addresses. Any methods
 containing substantial logic should include javadocs.
 
 Be sure that both integration tests and unit pass and that any new code introduced has corresponding [tests](src/test/java/com/disney/pg2k4j). Run unit tests with
@@ -176,4 +176,4 @@ mvn clean verify
 Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
 ```
 
-2. Contributors are required to fill out a CLA in order for us to be allowed to accept contributions. See [CLA-Individual](CLA-Individual.md) or [CLA-Corporate](CLA-Corporate.md) for details.
+Contributors are required to fill out a CLA in order for us to be allowed to accept contributions. See [CLA-Individual](CLA-Individual.md) or [CLA-Corporate](CLA-Corporate.md) for details.
