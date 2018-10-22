@@ -83,9 +83,8 @@ A replication slot will stream changes made on the database to the listener of t
 by the plugin used for that replication slot. By default pg2k4j uses the [wal2json](https://github.com/eulerto/wal2json) plugin
 which outputs a json representation of a [SlotMessage](src/main/java/com/disneystreaming/pg2k4j/models/SlotMessage.java) to the 
 listening thread. Postgres writes all data changes to the [Write Ahead Log](https://www.postgresql.org/docs/10/static/wal-intro.html), which
-as well as ensuring data integrity and crash safety, make it possible to perform logical replication and for applications like
-pg2k4j to exist. Each replication slot maintains a pointer to a position in the WAL, indicating the last sequence number this replication
-slot has processed. This allows Postgres to flush all sections of the WAL occurring before this sequence number. Crucially, if the
+as well as ensuring data integrity and crash safety, makes it possible to perform logical replication. Each replication slot maintains a pointer to a position in the WAL, indicating the last sequence number this replication
+slot has processed. This pointer allows Postgres to flush all sections of the WAL which occurred before this sequence number. Crucially, if the
 application maintaining the replication slot does not update this sequence number, the storage space on the database will fill up because
 Postgres won't be able to clear any sections of the WAL. To view this sequence number you can run the below query on your database.
 
@@ -93,7 +92,7 @@ Postgres won't be able to clear any sections of the WAL. To view this sequence n
 select * from pg_replication_slots
 ```
 
-Details of how pg2k4j manages this pointer will be outlined later in this section.
+Details of how pg2k4j manages this pointer are outlined later in this section.
 
 ##### 2. pg2k4j [deserializes](src/main/java/com/disneystreaming/pg2k4j/SlotReaderKinesisWriter.java#L277) the json output sent by the wal2json plugin to a SlotMessage.
 
@@ -102,7 +101,7 @@ representations of a SlotMessage.
 
 ##### 3. pg2k4j writes this contents to the Kinesis Stream.
 
-Done in two steps: first the SlotMessage is turned into a Stream of [UserRecord](https://github.com/awslabs/amazon-kinesis-producer/blob/master/java/amazon-kinesis-producer/src/main/java/com/amazonaws/services/kinesis/producer/UserRecord.java), and then
+First the SlotMessage is turned into a Stream of [UserRecord](https://github.com/awslabs/amazon-kinesis-producer/blob/master/java/amazon-kinesis-producer/src/main/java/com/amazonaws/services/kinesis/producer/UserRecord.java), and then
 these UserRecords are written to the stream with a [callback attached](src/main/java/com/disneystreaming/pg2k4j/SlotReaderKinesisWriter.java#L245) that will be invoked once the records make it to the 
 stream.
 
@@ -110,11 +109,11 @@ stream.
 
 On a successful write to the stream pg2k4j will [advance the replication slot's sequence number](src/main/java/com/disneystreaming/pg2k4j/SlotReaderCallback.java#L83), indicating
 that any data before this point may be flushed by the database. By advancing the sequence number after receiving confirmation
-that the record arrived on the stream, pg2k4j guarantees that each data change will make it to the stream. Even on database restart 
-or pg2k4j restart a recovery will be made that preserves this guarantee.
+that the record arrived on the stream, pg2k4j guarantees that each data change reaches Kinesis. Even on Postgres restart 
+or pg2k4j restart this guarantee is preserved.
 
 There is one other scenario wherein pg2k4j will advance the sequence number. It's important to note that each Postgres instance
-may have many databases, but a replication slot is configured against a single database. In the scenario where there are changes
+may have many databases, but a replication slot is configured against a single database. In the scenario where 
 the replication slot database is idle but the other databases are active, it's important that pg2k4j still advances its pointer into
 the WAL so that Postgres doesn't hang onto these sections of the WAL. That's why pg2k4j [advances the sequence number after
 a certain period of inactivity](src/main/java/com/disneystreaming/pg2k4j/SlotReaderKinesisWriter.java#L204-L206)
@@ -123,7 +122,7 @@ which [defaults to 5 minutes](src/main/java/com/disneystreaming/pg2k4j/Replicati
 ### Configuring Infrastructure
 
 This section is a walk through on how to create your Posgresql instance configured for logical replication as an [RDS](https://aws.amazon.com/rds/) instance.
-pg2k4j by no means requires that your Postgesql instance is an RDS instance, but since Kinesis is an AWS product many users
+pg2k4j by no means requires that your Postgesql instance is an RDS instance, but since Kinesis is an AWS product, many users
 will likely also be running their Postgres instance on AWS. For an example of how to configure a non-RDS instance of Postgres refer
 to the integration tests. This section also walks through how to set up a Kinesis Stream, for which pg2k4j requires no sepcial configuration.
 
@@ -145,7 +144,7 @@ max_replication_slots 10
 
 ##### Launch Instance
 
-In AWS console navigate to RDS then instances and select `Launch Instance`. Follow the creation wizard,
+In AWS console navigate to RDS->Instances and select `Launch Instance`. Follow the creation wizard,
 selecting `Postgresql` for the DB engine and `Postgresql 10.3-R1` for the DB engine version.
 
 As shown below, associate the parameter group you created in the previous step with this instance.
@@ -160,7 +159,10 @@ In AWS console navigate to Kinesis, and create a stream.
 
 ### Contributing
 
-Be sure that both integration tests and unit pass and that any new code introduced has corresponding [unit tests](src/test/java/com/disney/pg2k4j). Run unit tests with 
+1. Fork the repo and submit a pr with a description detailing what this code does, and what bug or feature it addresses. Any methods
+containing substantial logic should include javadocs.
+
+Be sure that both integration tests and unit pass and that any new code introduced has corresponding [tests](src/test/java/com/disney/pg2k4j). Run unit tests with
 
 ```bash
 >> mvn clean test
@@ -169,12 +171,9 @@ Tests run: 13, Failures: 0, Errors: 0, Skipped: 0
 
 and integration tests with 
 
-```
+```bash
 mvn clean verify
 Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
 ```
-
-1. Fork the repo and submit a pr with a description detailing what this code does, and what bug or feature it addresses. Any methods
-containing substantial logic should include javadocs.
 
 2. Contributors are required to fill out a CLA in order for us to be allowed to accept contributions. See [CLA-Individual](CLA-Individual.md) or [CLA-Corporate](CLA-Corporate.md) for details.
