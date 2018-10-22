@@ -72,7 +72,8 @@ on your database, making it possible to max out its write throughput.
 Before writing pg2k4j, we explored existing solutions. We used [pg2kinesis](https://github.com/handshake/pg2kinesis) but found
 that this implementation simply couldn't keep up with the write throughput that we required. As a JVM app, pg2k4j can natively integrate with [Amazon's
 Kinesis Producer Library](https://docs.aws.amazon.com/streams/latest/dev/developing-producers-with-kpl.html) allowing it to achieve write speeds of over
-1 million records per minute.
+1 million records per minute, which is orders of magnitude faster than the performance we observed with its Python
+ counterpart.
 
 ### How it Works
 
