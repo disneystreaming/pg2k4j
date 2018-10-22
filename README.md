@@ -5,7 +5,7 @@
 
 ### Postgresql To Kinesis For Java
 
-A tool for publishing inserts, updates, and deletes made to a [Postgresql](https://www.postgresql.org/) database to an [Amazon Kinesis](https://aws.amazon.com/kinesis/) Stream.
+A tool for publishing inserts, updates, and deletes made on a [Postgresql](https://www.postgresql.org/) database to an [Amazon Kinesis](https://aws.amazon.com/kinesis/) Stream.
 pg2k4j may be run as a stand-alone application from the command line, or used as a Java library where its functionality
 can be extended and customized.
 
