@@ -13,8 +13,8 @@ install: true
 
 ## export GPG details
 before_install:
-  - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
-  - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
+  - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+  - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
 
 install:
     mvn --settings .maven.xml install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
