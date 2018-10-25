@@ -1,20 +1,24 @@
 sudo: required
-
 env:
   - dockerTag=pg2k4j
-
 services:
   - docker
-
 language: java
-
 install: true
 
+## export GPG details
+before_install:
+  - echo $GPG_SECRET_KEYS | base64 --decode | $GPG_EXECUTABLE --import
+  - echo $GPG_OWNERTRUST | base64 --decode | $GPG_EXECUTABLE --import-ownertrust
+
 script:
+  # On each commit to master, bump the minor minor version
   - nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"
   - if [ "$TRAVIS_BRANCH" = "master" ]; then revision=$nextVersion; else revision=$TRAVIS_BRANCH; fi
-  - revision=$revision mvn clean install jacoco:report
-  - bash <(curl -s https://codecov.io/bash)
+  - mvn clean deploy -P release
+  # - revision=$revision mvn clean install jacoco:report
+  # - bash <(curl -s https://codecov.io/bash)
+
 
 after_success:
   # Push Bump, Tag, Release
@@ -38,6 +42,13 @@ after_success:
   - if [ "$TRAVIS_BRANCH" = "master" ]; then docker push rkass/pg2k4j:latest; fi
   - if [ "$TRAVIS_BRANCH" = "master" ]; then docker push rkass/pg2k4j:v$revision; fi
 
-
-
+deploy:
+  provider: releases
+  api_key:
+    secure: bSQp9H5KsclG8SdKh+c7tRB6kteVed0lI1Hq+pUYEEKazhrZG5DB2+2Wp6EW7U3PbX2OayNMWcVN+lSBPtRbjKZ3M3oOGENcln3WC7gPOOj8ZU4fmO9I8hRtjHYSPntZFQH5EYted1YSccG1wLSZAsFmi556SjSPnn06vTq7SjZyJLp7Sjj7LK0UPZkWqzs1YsM49F1l+gk20L5x6aNRkuqdDmTEDvQB6DqnCU++IX6N6BuDjSpMV/PXw6J1tQpgxSniae3kpOmruR+ZFK+iZB84v94Q88FmOEicT3CuJbkPAzayH+7VEuxJiBNnNMWjPY/BKnmi9o/SbwDwyJZiS4gC1F4z9CzzaMaEiQxhUiMcUtiJMYUb90t3BFw0eYRLwRrUuSo3EPIPwRHeYT3/Toic5gUZPXpgAviEo2oe80GN56ecUgiO+3hXoT4mUuEDx8bsTclJpxI/58Cv6QwwfrWyx8/9Hjrj+uZnRG+oXk20R4q5ek38Y5SoLgD6zLy4FmQWkCW4MF6TVAci7aJLQk9/0EdfXkJ325k3/anT6WtHuzPNhbFQG4Ci7MVVzs9srzaV6hqNKFJw7n0WU31Z2AYx6oHfq/XnhaWUDcoOhUblwWitedOWSgtAmkWfle2DNfKMKJrFFxXIVE83cOmLTyTbhGcVxTb9tYbHFMOY77w=
+  file:
+    - target/pg2k4j-$next_version.jar
+  name: $next_version
+  on:
+    repo: disneystreaming/pg2k4j
 
