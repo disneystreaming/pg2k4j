@@ -32,7 +32,7 @@ When you observe the below log, pg2k4j is set to publish changes to Kinesis.
  
 #### Use as a Java Library
 
-pg2k4j artifacts are published to [maven central](https://mvnrepository.com/artifact/com.disneystreaming/pg2k4j)
+pg2k4j artifacts are published to [maven central](https://mvnrepository.com/artifact/com.disneystreaming.pg2k4j/pg2k4j)
 
 ##### Maven
 
