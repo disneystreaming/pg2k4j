@@ -18,14 +18,18 @@ script:
   - bash <(curl -s https://codecov.io/bash)
 
 before_deploy:
+  - git config --global user.email "travis@travis-ci.com"
+  - git config --global user.name "Travis CI"
+  - git checkout $TRAVIS_BRANCH
   - mvn versions:set -DnewVersion=${TRAVIS_TAG}
   - git commit -am "Bump Version to ${TRAVIS_TAG}"
+  - git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git $TRAVIS_BRANCH
   - mvn clean deploy --settings .maven.xml -DskipTests=true -U -P release
 
 deploy:
   provider: releases
   api_key:
-    secure: bSQp9H5KsclG8SdKh+c7tRB6kteVed0lI1Hq+pUYEEKazhrZG5DB2+2Wp6EW7U3PbX2OayNMWcVN+lSBPtRbjKZ3M3oOGENcln3WC7gPOOj8ZU4fmO9I8hRtjHYSPntZFQH5EYted1YSccG1wLSZAsFmi556SjSPnn06vTq7SjZyJLp7Sjj7LK0UPZkWqzs1YsM49F1l+gk20L5x6aNRkuqdDmTEDvQB6DqnCU++IX6N6BuDjSpMV/PXw6J1tQpgxSniae3kpOmruR+ZFK+iZB84v94Q88FmOEicT3CuJbkPAzayH+7VEuxJiBNnNMWjPY/BKnmi9o/SbwDwyJZiS4gC1F4z9CzzaMaEiQxhUiMcUtiJMYUb90t3BFw0eYRLwRrUuSo3EPIPwRHeYT3/Toic5gUZPXpgAviEo2oe80GN56ecUgiO+3hXoT4mUuEDx8bsTclJpxI/58Cv6QwwfrWyx8/9Hjrj+uZnRG+oXk20R4q5ek38Y5SoLgD6zLy4FmQWkCW4MF6TVAci7aJLQk9/0EdfXkJ325k3/anT6WtHuzPNhbFQG4Ci7MVVzs9srzaV6hqNKFJw7n0WU31Z2AYx6oHfq/XnhaWUDcoOhUblwWitedOWSgtAmkWfle2DNfKMKJrFFxXIVE83cOmLTyTbhGcVxTb9tYbHFMOY77w=
+    secure: YZgQtvlss2hovlNXCjrgdspCZIBdAeBI8HAsMkfOcTJQb9uuMfcD8YF9s/34EBRSJSvIYvCBat3f50Bm7p/qsjcxvGdwpd9dnh5jlc+K63jWsTzsYQbgnjHZxrC/Xsg05M22e/7AkmTAzt8OnDi+kgUn6Zxjj2B/WxAHY3GSWXtGGF1Yyl2flodtLcA8KbfGLFUEObmadNkJRiAdrEQ3xoDV2f3hYKl1tw2U/EDhEmlwIKKXKao8VAYIHJ0/5qmfDdHzvrAVwWLEHR3ANpop4lcAtU5u2UpfKqAZ0M1EuSepVWbgBIekI5b5VyilGAe7h+8P6KA3Ej6KMOOoPy/Qz0XMJIWcBfMJZOvOh5j2LY4aDsY0FmWiY0n50GWvMTw0VwY3uLHWCrj2Q2qGK7HIWO1wriZZPuAT6apRsDavfWhE3IiC1Kh2JOYMYaCNxOKPe5wHZZZrCRf3dqCl6jreO0WhpM/rBt0wVGyomN77+rifsfO9MZeSX1WHFtjyr77a74j6Wbi6IvJDvs6uLQiU4xa/pnmZyTq/9Vm/UPho0kGUL2cHZISfxA4AFb+WQuB3LZ4DJNHCPikZP39sSu0hEWoXQtmGqBmJMenGwaRMVIjX4KbZUN/ebKa4egMM2nlMldC9qU+8C4DG7ofNuOhjLzPEi6nq1J5CBOq8rdSeYtI=
   file:
     - target/pg2k4j-${TRAVIS_TAG}.jar
   skip_cleanup: true
@@ -34,4 +38,3 @@ deploy:
     tags: true
     branch: publish-to-maven
     condition: $TRAVIS_BRANCH =~ ^([0-9]+.[0-9]+.[0-9]+)-?(.*)?$
-
