@@ -20,10 +20,10 @@ script:
 before_deploy:
   - git config --global user.email "travis@travis-ci.com"
   - git config --global user.name "Travis CI"
-  - git checkout $TRAVIS_BRANCH
+  - git checkout publish-to-maven
   - mvn versions:set -DnewVersion=${TRAVIS_TAG}
   - git commit -am "Bump Version to ${TRAVIS_TAG}"
-  - git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git $TRAVIS_BRANCH
+  - git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git publish-to-maven
   - mvn clean deploy --settings .maven.xml -DskipTests=true -U -P release
 
 deploy:
