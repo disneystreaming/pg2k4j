@@ -9,52 +9,29 @@ cache:
   directories:
     - ~/.m2/repository
 
-install: true
-
-## export GPG details
 before_install:
+  ## export GPG details
   - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
-  - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-
-install:
-    mvn --settings .maven.xml install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
 
 script:
-  # On each commit to master, bump the minor minor version
-  - nextVersion="$(cat .version | perl -pe 'chomp' | awk -F. "{\$NF = \$NF + 1;} 1" | sed 's/ /./g')"
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then revision=$nextVersion; else revision=$TRAVIS_BRANCH; fi
+  - mvn --settings .maven.xml clean install jacoco:report -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
+  - bash <(curl -s https://codecov.io/bash)
+
+before_deploy:
+  - mvn versions:set -DnewVersion=${TRAVIS_TAG}
+  - git commit -am "Bump Version to ${TRAVIS_TAG}"
   - mvn clean deploy --settings .maven.xml -DskipTests=true -U -P release
-
-
-after_success:
-  # Push Bump, Tag, Release
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then echo "Bumping version to $nextVersion"; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then echo $nextVersion > .version; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then git checkout $TRAVIS_BRANCH; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then git add .version; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then previousCommitMessage="$(git log -1 --pretty=%B)"; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then git commit -m "[skip travis] Bump Version"; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git $TRAVIS_BRANCH; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then git tag -a v$nextVersion -m "Release v$nextVersion $previousCommitMessage"; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git v$nextVersion; fi
-  # Docker Build
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then docker build --build-arg version=$revision . -t ${dockerTag}; fi
-  # Docker Login
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin; fi
-  # Docker Tag
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then docker tag $dockerTag rkass/pg2k4j:latest; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then docker tag $dockerTag rkass/pg2k4j:v$revision; fi
-  # Docker Push
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then docker push rkass/pg2k4j:latest; fi
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then docker push rkass/pg2k4j:v$revision; fi
 
 deploy:
   provider: releases
   api_key:
     secure: bSQp9H5KsclG8SdKh+c7tRB6kteVed0lI1Hq+pUYEEKazhrZG5DB2+2Wp6EW7U3PbX2OayNMWcVN+lSBPtRbjKZ3M3oOGENcln3WC7gPOOj8ZU4fmO9I8hRtjHYSPntZFQH5EYted1YSccG1wLSZAsFmi556SjSPnn06vTq7SjZyJLp7Sjj7LK0UPZkWqzs1YsM49F1l+gk20L5x6aNRkuqdDmTEDvQB6DqnCU++IX6N6BuDjSpMV/PXw6J1tQpgxSniae3kpOmruR+ZFK+iZB84v94Q88FmOEicT3CuJbkPAzayH+7VEuxJiBNnNMWjPY/BKnmi9o/SbwDwyJZiS4gC1F4z9CzzaMaEiQxhUiMcUtiJMYUb90t3BFw0eYRLwRrUuSo3EPIPwRHeYT3/Toic5gUZPXpgAviEo2oe80GN56ecUgiO+3hXoT4mUuEDx8bsTclJpxI/58Cv6QwwfrWyx8/9Hjrj+uZnRG+oXk20R4q5ek38Y5SoLgD6zLy4FmQWkCW4MF6TVAci7aJLQk9/0EdfXkJ325k3/anT6WtHuzPNhbFQG4Ci7MVVzs9srzaV6hqNKFJw7n0WU31Z2AYx6oHfq/XnhaWUDcoOhUblwWitedOWSgtAmkWfle2DNfKMKJrFFxXIVE83cOmLTyTbhGcVxTb9tYbHFMOY77w=
   file:
-    - target/pg2k4j-$next_version.jar
-  name: $next_version
+    - target/pg2k4j-${TRAVIS_TAG}.jar
+  skip_cleanup: true
   on:
     repo: disneystreaming/pg2k4j
+    tags: true
+    branch: publish-to-maven
+    condition: $TRAVIS_BRANCH =~ ^([0-9]+.[0-9]+.[0-9]+)-?(.*)?$
 

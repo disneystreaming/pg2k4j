@@ -14,8 +14,8 @@
             </activation>
             <properties>
                 <gpg.executable>gpg</gpg.executable>
-                <gpg.keyname>40FD8603</gpg.keyname>
-                <gpg.passphrase>Open Source Disney 123&amp;</gpg.passphrase>
+                <gpg.keyname>9335F155</gpg.keyname>
+                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
             </properties>
         </profile>
     </profiles>
