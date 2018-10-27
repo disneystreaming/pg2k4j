@@ -12,6 +12,7 @@ cache:
 before_install:
   ## export GPG details
   - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
+  - echo $TRAVIS_BRANCH
 
 script:
   - mvn --settings .maven.xml clean install jacoco:report -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
