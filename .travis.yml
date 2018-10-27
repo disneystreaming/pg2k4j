@@ -15,7 +15,7 @@ before_install:
   - echo $TRAVIS_BRANCH
   - git branch -avv
   - git remote -v
-  - git fetch
+  - git fetch origin
   - git pull
   - git branch -avv
   - git checkout -b publish-to-maven origin/publish-to-maven
