@@ -26,12 +26,14 @@ script:
 before_deploy:
   # Switch to the release branch (master)
   # bump the version according to the tag, commit, push then deploy to sonatype
+  # When we change the version we use a temp branch which is then merged in to the release branch
+  # We do this to avoid switching branches mid build
   - git config --global user.email "travis@travis-ci.com"
   - git config --global user.name "Travis CI"
-  - git checkout -b $RELEASE_BRANCH origin/$RELEASE_BRANCH
-  - git pull
-  - meh
+  - git fetch
   - mvn versions:set -DnewVersion=${TRAVIS_TAG}
+  - git branch ${TRAVIS_TAG}-temp
+  - git branch -f $RELEASE_BRANCH ${TRAVIS_TAG}-temp
   - git commit -am "Bump Version to ${TRAVIS_TAG}"
   - git push https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git $RELEASE_BRANCH
   - mvn clean deploy --settings .maven.xml -DskipTests=true -U -P release
