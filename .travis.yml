@@ -1,7 +1,7 @@
 sudo: required
 env:
   global:
-    - RELEASE_BRANCH=publish-to-maven
+    - RELEASE_BRANCH=master
     - TEMP_DOCKER_TAG=pg2k4j
 services:
   - docker
