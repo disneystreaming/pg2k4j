@@ -1,15 +1,14 @@
 sudo: required
 env:
-  - RELEASE_BRANCH=publish-to-maven
-  - TEMP_DOCKER_TAG=pg2k4j
+  global:
+    - RELEASE_BRANCH=publish-to-maven
+    - TEMP_DOCKER_TAG=pg2k4j
 services:
   - docker
 language: java
-
 cache:
   directories:
     - ~/.m2/repository
-
 git:
   # The --depth option is used by default, which implies --single-branch. 
   # The result of this is ONLY the current bbranch/tag is cloned.
