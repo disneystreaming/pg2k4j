@@ -32,13 +32,10 @@ before_deploy:
   - git config --global user.name "Travis CI"
   - git fetch
   - mvn versions:set -DnewVersion=${TRAVIS_TAG}
-  - git branch ${TRAVIS_TAG}-temp
+  - git checkout -b ${TRAVIS_TAG}-temp
   - git commit -am "Bump Version to ${TRAVIS_TAG}"
-  - git branch -f $RELEASE_BRANCH ${TRAVIS_TAG}-temp
-  - # Merge local branch foo into local branch master,
-# without having to checkout master first.
-# Here `.` means to use the local repository as the "remote":
-  - git fetch . foo:master
+  - # Merge local (.) temp branch into local release branch,
+  - git fetch . ${TRAVIS_TAG}-temp:$RELEASE_BRANCH
   - git push  https://${GH_TOKEN}@github.com/disneystreaming/pg2k4j.git $RELEASE_BRANCH:$RELEASE_BRANCH
   - mvn clean deploy --settings .maven.xml -DskipTests=true -U -P release
 
