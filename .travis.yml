@@ -57,9 +57,9 @@ deploy:
 after_deploy:
   # Publish the docker image
   # We can't use automated DH builds because we need the target directory from the build
-  - docker build --build-arg version=$TRAVIS_TAG . -t ${TEMP_DOCKER_TAG}; fi
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin; fi
-  - docker tag $TEMP_DOCKER_TAG disneystreaming/pg2k4j:latest; fi
-  - docker tag $TEMP_DOCKER_TAG disneystreaming/pg2k4j:$TRAVIS_TAG; fi
-  - docker push disneystreaming/pg2k4j:latest; fi
-  - docker push disneystreaming/pg2k4j:$TRAVIS_TAG; fi
+  - docker build --build-arg version=$TRAVIS_TAG . -t ${TEMP_DOCKER_TAG}
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker tag $TEMP_DOCKER_TAG disneystreaming/pg2k4j:latest
+  - docker tag $TEMP_DOCKER_TAG disneystreaming/pg2k4j:$TRAVIS_TAG
+  - docker push disneystreaming/pg2k4j:latest
+  - docker push disneystreaming/pg2k4j:$TRAVIS_TAG
