@@ -1,6 +1,7 @@
 sudo: required
 env:
   - RELEASE_BRANCH=publish-to-maven
+  - TEMP_DOCKER_TAG=pg2k4j
 services:
   - docker
 language: java
@@ -52,4 +53,14 @@ deploy:
     repo: disneystreaming/pg2k4j
     tags: true
     branch: $RELEASE_BRANCH
-    condition: $TRAVIS_BRANCH =~ ^([0-9]+.[0-9]+.[0-9]+)-?(.*)?$
+    condition: $TRAVIS_TAG =~ ^([0-9]+.[0-9]+.[0-9]+)-?(.*)?$
+
+after_deploy:
+  # Publish the docker image
+  # We can't use automated DH builds because we need the target directory from the build
+  - docker build --build-arg version=$TRAVIS_TAG . -t ${TEMP_DOCKER_TAG}; fi
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin; fi
+  - docker tag $TEMP_DOCKER_TAG disneystreaming/pg2k4j:latest; fi
+  - docker tag $TEMP_DOCKER_TAG disneystreaming/pg2k4j:v$TRAVIS_TAG; fi
+  - docker push disneystreaming/pg2k4j:latest; fi
+  - docker push disneystreaming/pg2k4j:v$TRAVIS_TAG; fi
