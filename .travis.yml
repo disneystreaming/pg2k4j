@@ -48,6 +48,7 @@ deploy:
     - target/pg2k4j-${TRAVIS_TAG}.jar
   skip_cleanup: true
   on:
+    # Only deploy when the release branch is tagged with a version (x.x.x)
     repo: disneystreaming/pg2k4j
     tags: true
     branch: $RELEASE_BRANCH
