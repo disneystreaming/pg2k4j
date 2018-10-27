@@ -17,6 +17,9 @@ before_install:
   - git remote -v
   - git fetch
   - git branch -avv
+  - git checkout -b publish-to-maven origin/publish-to-maven
+  - git status
+  - git branch -avv
 
 script:
   - mvn --settings .maven.xml clean install jacoco:report -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
