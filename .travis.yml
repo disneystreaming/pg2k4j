@@ -9,14 +9,15 @@ cache:
   directories:
     - ~/.m2/repository
 
+git:
+  depth: false
+
 before_install:
   ## export GPG details
   - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
   - echo $TRAVIS_BRANCH
   - git branch -avv
   - git remote -v
-  - git fetch origin
-  - git pull
   - git branch -avv
   - git checkout -b publish-to-maven origin/publish-to-maven
   - git status
