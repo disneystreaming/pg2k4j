@@ -1,6 +1,6 @@
 sudo: required
 env:
-  - RELEASE_BRANCH=master
+  - RELEASE_BRANCH=publish-to-maven
 services:
   - docker
 language: java
