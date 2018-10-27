@@ -14,11 +14,11 @@ can be extended and customized.
 First, setup your Postgres database to support [logical replication](https://www.postgresql.org/docs/10/static/logical-replication.html) and create an AWS Kinesis Stream.
  
 #### Run pg2k4j as a Stand-alone Application
-Download [Docker](https://www.docker.com/get-started) and login with your docker credentials to gain access to the [pg2k4j docker repository](https://hub.docker.com/r/rkass/pg2k4j/).
+Download [Docker](https://www.docker.com/get-started) and login with your docker credentials to gain access to the [pg2k4j docker repository](https://hub.docker.com/r/disneystreaming/pg2k4j/).
 Then run the command below.
 ```
 docker run -v /path/to/.aws/creds/:/aws_creds 
-rkass/pg2k4j 
+disneystreaming/pg2k4j 
 --awsconfiglocation=/aws_creds
 --pgdatabase=<your_postgres_db> --pghost=<your_postgres_host> --pguser=<your_postgres_user> --pgpassword=<your_postgres_pw> 
 --streamname=<your_kinesis_streamname>
@@ -177,3 +177,8 @@ Tests run: 2, Failures: 0, Errors: 0, Skipped: 0
 ```
 
 Contributors are required to fill out a CLA in order for us to be allowed to accept contributions. See [CLA-Individual](CLA-Individual.md) or [CLA-Corporate](CLA-Corporate.md) for details.
+
+### Releasing
+Releasing is automatic and is driven by tags. To release simply tag the master branch with a Semantic version, e.g. `1.0.0`.
+
+This will update the pom with the version, publish to maven, and build and push the Docker image to Dockerhub.
