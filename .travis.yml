@@ -13,10 +13,10 @@ before_install:
   ## export GPG details
   - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
   - echo $TRAVIS_BRANCH
-  - git branch -v
+  - git branch -avv
   - git remote -v
   - git fetch
-  - git branch -v
+  - git branch -avv
 
 script:
   - mvn --settings .maven.xml clean install jacoco:report -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
