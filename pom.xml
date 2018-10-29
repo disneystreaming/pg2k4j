@@ -1,27 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.disneystreaming.pg2k4j</groupId>
     <artifactId>pg2k4j</artifactId>
-    <version>0.1.8</version>
+    <version>0.2.0</version>
     <packaging>jar</packaging>
 
     <name>pg2k4j</name>
     <description>Use Postgres logical replication to publish changes to the WAL to kinesis.</description>
+    <url>https://github.com/disneystreaming/pg2k4j</url>
+
+    <scm>
+        <connection>scm:git@github.com:disneystreaming/pg2k4j.git</connection>
+        <url>https://github.com/disneystreaming/pg2k4j</url>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>Primary project license</comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Ryan Kass</name>
+            <organization>Disney Streaming Services</organization>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <email />
+        </developer>
+    </developers>
 
     <distributionManagement>
-        <repository>
-            <id>p13n.maven</id>
-            <name>p13n.maven</name>
-            <url>https://artifactory.us-east-1.bamgrid.net/p13n-maven-local</url>
-        </repository>
+        <site>
+            <id>github</id>
+            <url>https://github.com/disneystreaming/pg2k4j</url>
+        </site>
+
         <snapshotRepository>
-            <id>p13n.maven</id>
-            <name>p13n.maven</name>
-            <url>https://artifactory.us-east-1.bamgrid.net/p13n-maven-local</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+
     </distributionManagement>
 
     <properties>
@@ -32,8 +62,7 @@
         <postgres.version>42.2.2</postgres.version>
         <junit.version>4.11</junit.version>
         <powermock.version>1.7.3</powermock.version>
-        <jacoco.version>0.7.6.201602180812</jacoco.version>
-        <coveralls.version>4.3.0</coveralls.version>
+        <jacoco.version>0.8.2</jacoco.version>
         <checkstyle.version>3.0.0</checkstyle.version>
         <failsafe.version>2.22.1</failsafe.version>
         <testcontainers.version>1.9.1</testcontainers.version>
@@ -137,6 +166,80 @@
 
     </dependencies>
 
+    <profiles>
+        <!-- Activate using the release property: mvn clean install -Prelease -->
+        <!-- This makes local use of the library easier -->
+        <profile>
+            <id>release</id>
+            <activation>
+                <property>
+                    <name>release</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <!-- To release to Maven central -->
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.8</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                    <!-- To generate javadoc -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.0.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>2.10.4</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <!-- To sign the artifacts -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+
+            </build>
+        </profile>
+    </profiles>
+
     <build>
         <plugins>
             <plugin>
@@ -151,6 +254,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.1</version>
                 <configuration>
                     <includes>
                         <include>**/Test*.java</include>
@@ -241,6 +345,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 
