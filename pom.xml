@@ -58,7 +58,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <kpl.version>0.12.9</kpl.version>
-        <jackson.version>2.9.6</jackson.version>
+        <jackson.version>2.9.7</jackson.version>
         <postgres.version>42.2.2</postgres.version>
         <junit.version>4.11</junit.version>
         <powermock.version>1.7.3</powermock.version>
