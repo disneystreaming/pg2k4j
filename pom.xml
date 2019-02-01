@@ -70,9 +70,16 @@
         <aws.sdk.version>1.11.365</aws.sdk.version>
         <picoli.version>3.6.1</picoli.version>
         <kcl.version>1.8.8</kcl.version>
+        <jaxb.version>2.3.0</jaxb.version>
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>${jaxb.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>info.picocli</groupId>
