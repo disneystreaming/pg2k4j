@@ -76,7 +76,7 @@ public class SlotMessageRecordProcessor implements IRecordProcessor {
                             .readValue(incomingData)));
                 } catch (final JsonMappingException jme) {
                     logger.info("Found single incoming Kinesis record - "
-                           + "attempting to deserialize as a single VasRecord");
+                           + "attempting to deserialize as a single Record");
 
                     records.add(this.recordReader.readValue(incomingData));
                 }
