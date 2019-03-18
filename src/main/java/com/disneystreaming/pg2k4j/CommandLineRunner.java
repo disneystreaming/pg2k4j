@@ -142,6 +142,50 @@ public class CommandLineRunner implements
     )
     private String slotName;
 
+    @CommandLine.Option(
+            names = {"--pgsslmode"},
+            description = "Refer to https://jdbc.postgresql.org/development/privateapi/org/postgresql/PGProperty.html#SSL_MODE "
+                    + "for description and valid values.",
+            required = false,
+            defaultValue = PostgresConfiguration.DEFAULT_SSL_MODE
+    )
+    private String sslMode;
+
+    @CommandLine.Option(
+            names = {"--pgpathtorootcert"},
+            description = "Refer to https://jdbc.postgresql.org/development/privateapi/org/postgresql/PGProperty.html#SSL_ROOT_CERT "
+                    + "for description. "
+                    + "Example: /path/to/rds-combined-ca-bundle.pem",
+            required = false
+    )
+    private String pathToRootCert;
+
+    @CommandLine.Option(
+            names = {"--pgpathtosslcert"},
+            description = "Refer to https://jdbc.postgresql.org/development/privateapi/org/postgresql/PGProperty.html#SSL_CERT "
+                    + "for description. "
+                    + "Example: /path/to/sslcert.pem",
+            required = false
+    )
+    private String pathToSslCert;
+
+    @CommandLine.Option(
+            names = {"--pgpathtosslkey"},
+            description = "Refer to https://jdbc.postgresql.org/development/privateapi/org/postgresql/PGProperty.html#SSL_KEY "
+                    + "for description. "
+                    + "Example: /path/to/sslkey.pem",
+            required = false
+    )
+    private String pathToSslKey;
+
+    @CommandLine.Option(
+            names = {"--pgsslpassword"},
+            description = "Refer to https://jdbc.postgresql.org/development/privateapi/org/postgresql/PGProperty.html#SSL_PASSWORD "
+                    + "for description. ",
+            required = false
+    )
+    private String sslPassword;
+
     @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true,
             description = "Display this message")
     private boolean usageHelpRequested;
@@ -214,4 +258,28 @@ public class CommandLineRunner implements
     public String getPort() {
         return pgPort;
     }
+
+    @Override
+    public String getSslMode() { return sslMode; }
+
+    @Override
+    public String getPathToRootCert() {
+        return pathToRootCert;
+    }
+
+    @Override
+    public String getSslPassword() {
+        return sslPassword;
+    }
+
+    @Override
+    public String getPathToSslKey() {
+        return pathToSslKey;
+    }
+
+    @Override
+    public String getPathToSslCert() {
+        return pathToSslCert;
+    }
+
 }
