@@ -144,7 +144,9 @@ public class CommandLineRunner implements
 
     @CommandLine.Option(
             names = {"--pgsslmode"},
-            description = "Refer to https://jdbc.postgresql.org/development/privateapi/org/postgresql/PGProperty.html#SSL_MODE "
+            description = "Refer to "
+                    + "https://jdbc.postgresql.org/development/privateapi/org/"
+                    + "postgresql/PGProperty.html#SSL_MODE "
                     + "for description and valid values.",
             required = false,
             defaultValue = PostgresConfiguration.DEFAULT_SSL_MODE
@@ -153,7 +155,9 @@ public class CommandLineRunner implements
 
     @CommandLine.Option(
             names = {"--pgpathtorootcert"},
-            description = "Refer to https://jdbc.postgresql.org/development/privateapi/org/postgresql/PGProperty.html#SSL_ROOT_CERT "
+            description = "Refer to "
+                    + "https://jdbc.postgresql.org/development/privateapi/org/"
+                    + "postgresql/PGProperty.html#SSL_ROOT_CERT "
                     + "for description. "
                     + "Example: /path/to/rds-combined-ca-bundle.pem",
             required = false
@@ -162,7 +166,9 @@ public class CommandLineRunner implements
 
     @CommandLine.Option(
             names = {"--pgpathtosslcert"},
-            description = "Refer to https://jdbc.postgresql.org/development/privateapi/org/postgresql/PGProperty.html#SSL_CERT "
+            description = "Refer to "
+                    + "https://jdbc.postgresql.org/development/privateapi/org/"
+                    + "postgresql/PGProperty.html#SSL_CERT "
                     + "for description. "
                     + "Example: /path/to/sslcert.pem",
             required = false
@@ -171,7 +177,9 @@ public class CommandLineRunner implements
 
     @CommandLine.Option(
             names = {"--pgpathtosslkey"},
-            description = "Refer to https://jdbc.postgresql.org/development/privateapi/org/postgresql/PGProperty.html#SSL_KEY "
+            description = "Refer to "
+                    + "https://jdbc.postgresql.org/development/privateapi/org/"
+                    + "postgresql/PGProperty.html#SSL_KEY "
                     + "for description. "
                     + "Example: /path/to/sslkey.pem",
             required = false
@@ -180,7 +188,9 @@ public class CommandLineRunner implements
 
     @CommandLine.Option(
             names = {"--pgsslpassword"},
-            description = "Refer to https://jdbc.postgresql.org/development/privateapi/org/postgresql/PGProperty.html#SSL_PASSWORD "
+            description = "Refer to "
+                    + "https://jdbc.postgresql.org/development/privateapi/org/"
+                    + "postgresql/PGProperty.html#SSL_PASSWORD "
                     + "for description. ",
             required = false
     )
