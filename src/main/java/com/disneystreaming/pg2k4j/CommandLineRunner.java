@@ -270,7 +270,9 @@ public class CommandLineRunner implements
     }
 
     @Override
-    public String getSslMode() { return sslMode; }
+    public String getSslMode() {
+        return sslMode;
+    }
 
     @Override
     public String getPathToRootCert() {
