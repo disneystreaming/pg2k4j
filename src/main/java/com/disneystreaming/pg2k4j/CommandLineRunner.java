@@ -103,7 +103,7 @@ public class CommandLineRunner implements
             description = "File path to use for sourcing AWS config."
                     + " --awsprofile must also be provided when"
                     + " using --awsconfiglocation."
-                    + " If one is provided a ProfileCredentialProvider will"
+                    + " If these are provided a ProfileCredentialProvider will"
                     + " be used for interacting with AWS. Otherwise the"
                     + " DefaultAWSCredentialsProviderChain will be used."
     )
