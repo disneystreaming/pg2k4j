@@ -90,7 +90,9 @@ public class CommandLineRunner implements
     @CommandLine.Option(
             names = {"--awsprofile"},
             description = "AWS Profile to use for accessing the Kinesis Stream."
-                    + " If one is provided a ProfileCredentialProvider will"
+                    + " --awsconfiglocation must also be provided when"
+                    + " using --awsprofile."
+                    + " If these are provided a ProfileCredentialProvider will"
                     + " be used for interacting with AWS. Otherwise the"
                     + " DefaultAWSCredentialsProviderChain will be used."
     )
@@ -99,7 +101,9 @@ public class CommandLineRunner implements
     @CommandLine.Option(
             names = {"--awsconfiglocation"},
             description = "File path to use for sourcing AWS config."
-                    + " If one is provided a ProfileCredentialProvider will"
+                    + " --awsprofile must also be provided when"
+                    + " using --awsconfiglocation."
+                    + " If these are provided a ProfileCredentialProvider will"
                     + " be used for interacting with AWS. Otherwise the"
                     + " DefaultAWSCredentialsProviderChain will be used."
     )
@@ -108,14 +112,14 @@ public class CommandLineRunner implements
     @CommandLine.Option(
             names = {"--awsaccesskey"},
             description = "Access key to use for accessing AWS Kinesis Stream."
-                    + "If provided, awsSecretKey (-f) must also be provided."
+                    + "If provided, --awssecret must also be provided."
     )
     private String awsAccessKey;
 
     @CommandLine.Option(
             names = {"--awssecret"},
             description = "Access secret to use for accessing AWS Kinesis "
-                    + " Stream. If provided, awsAccessKey (-e)"
+                    + " Stream. If provided, --awsaccesskey"
                     + " must also be provided."
     )
     private String awsSecretKey;
@@ -201,7 +205,7 @@ public class CommandLineRunner implements
     private boolean usageHelpRequested;
 
     private AWSCredentialsProvider getAwsCredentialsProvider() {
-        if (awsProfile != null || awsConfigLocation != null) {
+        if (awsProfile != null && awsConfigLocation != null) {
             final String profile = makeProfile(awsProfile);
             return new ProfileCredentialsProvider(awsConfigLocation, profile);
         } else if (awsAccessKey != null && awsSecretKey != null) {

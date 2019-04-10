@@ -19,7 +19,7 @@ Then run the command below.
 ```
 docker run -v /path/to/.aws/creds/:/aws_creds 
 disneystreaming/pg2k4j 
---awsconfiglocation=/aws_creds
+--awsconfiglocation=/aws_creds --awsprofile=default
 --pgdatabase=<your_postgres_db> --pghost=<your_postgres_host> --pguser=<your_postgres_user> --pgpassword=<your_postgres_pw> 
 --streamname=<your_kinesis_streamname>
 ``` 
