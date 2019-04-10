@@ -5,7 +5,7 @@
 
     <groupId>com.disneystreaming.pg2k4j</groupId>
     <artifactId>pg2k4j</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <packaging>jar</packaging>
 
     <name>pg2k4j</name>
