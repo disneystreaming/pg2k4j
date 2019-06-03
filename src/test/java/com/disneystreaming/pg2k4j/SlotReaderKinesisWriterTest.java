@@ -120,7 +120,7 @@ public class SlotReaderKinesisWriterTest {
     private static final byte[] testByteArray = "testByteArray".getBytes();
     private static final String correctTableName = "correctTableName";
     private static final String incorrectTableName = "incorrectTableName";
-    private static final SlotMessage testSlotMessage = new SlotMessage(123,
+    private static final SlotMessage testSlotMessage = new SlotMessage(3147483647L,
             Arrays.asList(new DeleteChange("delete", "testTable", "mySchema",
                     new OldKeys(Arrays.asList("type"), Arrays.asList("value"), Arrays.asList("name")))));
 

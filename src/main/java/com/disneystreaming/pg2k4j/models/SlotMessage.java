@@ -32,12 +32,12 @@ import java.util.List;
 
 public class SlotMessage {
 
-    private final int xid;
+    private final long xid;
     private final List<Change> change;
 
     @JsonCreator
     public SlotMessage(
-            @JsonProperty(value = "xid", required = true) final int xidInput,
+            @JsonProperty(value = "xid", required = true) final long xidInput,
             @JsonProperty(value = "change", required = true)
             final List<Change> changeInput
     ) {
@@ -45,7 +45,7 @@ public class SlotMessage {
         this.change = changeInput;
     }
 
-    public int getXid() {
+    public long getXid() {
         return xid;
     }
 
