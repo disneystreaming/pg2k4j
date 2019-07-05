@@ -35,8 +35,8 @@ public class Postgres<SELF extends GenericContainer<SELF>> extends
             .withTimes(2)
             .withStartupTimeout(Duration.of(60, SECONDS));
 
-    public Postgres(final Network network) {
-        super("debezium/postgres:10.0");
+    public Postgres(final Network network, final String version) {
+        super("debezium/postgres:" + version);
 
         this.withNetwork(network)
                 .withExposedPorts(5432)
