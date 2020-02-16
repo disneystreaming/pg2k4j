@@ -1,6 +1,10 @@
 
 [![Build Status](https://travis-ci.com/disneystreaming/pg2k4j.svg?branch=master)](https://travis-ci.com/disneystreaming/pg2k4j) [![codecov](https://codecov.io/gh/disneystreaming/pg2k4j/branch/master/graph/badge.svg)](https://codecov.io/gh/disneystreaming/pg2k4j)
 
+# This project is no longer actively maintained by Disney Streaming Services
+
+You are welcome to use and fork this project, and we may occasionally review and merge pull requests submitted from contributors or dependabot/Snyk. However we no longer use this internally and therefore support will be limited.
+
 ## pg2k4j
 
 ### Postgresql To Kinesis For Java
