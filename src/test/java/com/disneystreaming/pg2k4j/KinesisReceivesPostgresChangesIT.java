@@ -40,14 +40,18 @@ public class KinesisReceivesPostgresChangesIT {
             LoggerFactory.getLogger(KinesisReceivesPostgresChangesIT.class);
 
     private static final Network network = Network.newNetwork();
-    private static Thread slotReaderKinesisWriterThread;
+    private static Thread slotReaderKinesisWriterThreadPgTen;
+    private static Thread slotReaderKinesisWriterThreadPgEleven;
     private static Thread kclThread;
     private static final int GET_RECORDS_ATTEMPTS = 15;
     private static SlotMessageRecordProcessorFactory
             slotMessageRecordProcessorFactory;
 
     @ClassRule
-    public static Postgres postgres = new Postgres(network);
+    public static Postgres postgresTen = new Postgres(network, "10");
+
+    @ClassRule
+    public static Postgres postgresEleven = new Postgres(network, "11");
 
     @ClassRule
     public static KinesisDynamoLocalStack kinesisDynamoLocalStack =
@@ -62,16 +66,31 @@ public class KinesisReceivesPostgresChangesIT {
                 SDKGlobalConfiguration.AWS_CBOR_DISABLE_SYSTEM_PROPERTY,
                 "true");
         kinesisDynamoLocalStack.createAndWait();
-        postgres.createTable();
+        postgresTen.createTable();
+        postgresEleven.createTable();
         slotMessageRecordProcessorFactory = new
                 SlotMessageRecordProcessorFactory(
                         kinesisDynamoLocalStack.getEndpointConfiguration(false).getServiceEndpoint(),
                 kinesisDynamoLocalStack.getEndpointConfiguration(true).getServiceEndpoint(),
                 kinesisDynamoLocalStack.STREAM_NAME);
-        CommandLineRunner commandLineRunner = CommandLineRunner.initialize(
+        CommandLineRunner commandLineRunnerPgTen = CommandLineRunner.initialize(
                 new String[]{
-                        "--pgport", String.valueOf(postgres.getPort()),
-                        "--pghost", postgres.getHost(),
+                        "--pgport", String.valueOf(postgresTen.getPort()),
+                        "--pghost", postgresTen.getHost(),
+                        "--pguser", Postgres.USER,
+                        "--pgpassword", Postgres.PASSWORD,
+                        "--pgdatabase", "test",
+                        "--streamname", KinesisDynamoLocalStack.STREAM_NAME,
+                        "--kinesisendpoint",
+                        kinesisDynamoLocalStack.getKinesisEndpoint(),
+                        "--awsaccesskey", "test",
+                        "--awssecret", "test"
+                }
+        ).get();
+        CommandLineRunner commandLineRunnerPgEleven = CommandLineRunner.initialize(
+                new String[]{
+                        "--pgport", String.valueOf(postgresEleven.getPort()),
+                        "--pghost", postgresEleven.getHost(),
                         "--pguser", Postgres.USER,
                         "--pgpassword", Postgres.PASSWORD,
                         "--pgdatabase", "test",
@@ -85,72 +104,101 @@ public class KinesisReceivesPostgresChangesIT {
         kclThread = new Thread(slotMessageRecordProcessorFactory);
         kclThread.start();
         slotMessageRecordProcessorFactory.waitForConsumer();
-        slotReaderKinesisWriterThread = new Thread(commandLineRunner);
-        slotReaderKinesisWriterThread.start();
+        slotReaderKinesisWriterThreadPgTen = new Thread(commandLineRunnerPgTen);
+        slotReaderKinesisWriterThreadPgTen.start();
+        slotReaderKinesisWriterThreadPgEleven = new Thread(commandLineRunnerPgEleven);
+        slotReaderKinesisWriterThreadPgEleven.start();
         logger.info("Infrastructure initialized, starting tests...");
         Thread.sleep(3000);
     }
 
     @Test
     public void testInsertAndDeleteForwardedToStream() throws Exception {
-        Map<String, Integer> appleNamesToQuantities = ImmutableMap.of(
+        Map<String, Integer> appleNamesToQuantitiesTen = ImmutableMap.of(
                 "Fuji", 2,
                 "Gala", 3
         );
-        insertRecords(appleNamesToQuantities);
-        deleteRecords(appleNamesToQuantities);
+        Map<String, Integer> appleNamesToQuantitiesEleven = ImmutableMap.of(
+                "Honeycrisp", 5,
+                "Jonagold", 1
+        );
+        insertRecords(appleNamesToQuantitiesTen, "10");
+        deleteRecords(appleNamesToQuantitiesTen, "10");
+        insertRecords(appleNamesToQuantitiesEleven, "11");
+        deleteRecords(appleNamesToQuantitiesEleven, "11");
         verifyPostgresInsertRecordsAppearOnKinesisStream(
-                appleNamesToQuantities);
+                appleNamesToQuantitiesTen);
         verifyPostgresDeleteRecordsAppearOnKinesisStream(
-                appleNamesToQuantities);
+                appleNamesToQuantitiesEleven);
     }
 
     @Test
     public void testInsertAndUpdateForwardedToStream() throws Exception {
-        Map<String, Integer> appleNamesToQuantitiesInsert = ImmutableMap.of(
+        Map<String, Integer> appleNamesToQuantitiesInsertTen = ImmutableMap.of(
                 "Macintosh", 5,
                 "Granny Smith", 7
         );
-        Map<String, Integer> appleNamesToQuantitiesUpdate = ImmutableMap.of(
+        Map<String, Integer> appleNamesToQuantitiesUpdateTen = ImmutableMap.of(
                 "Macintosh", 1
         );
-        insertRecords(appleNamesToQuantitiesInsert);
-        updateRecords(appleNamesToQuantitiesUpdate);
+        Map<String, Integer> appleNamesToQuantitiesInsertEleven = ImmutableMap.of(
+                "Red Delicious", 6,
+                "Pink Lady", 10
+        );
+        Map<String, Integer> appleNamesToQuantitiesUpdateEleven = ImmutableMap.of(
+                "Pink Lady", 9
+        );
+        insertRecords(appleNamesToQuantitiesInsertTen, "10");
+        updateRecords(appleNamesToQuantitiesUpdateTen, "10");
         verifyPostgresInsertRecordsAppearOnKinesisStream(
-                appleNamesToQuantitiesInsert);
+                appleNamesToQuantitiesInsertTen);
         verifyPostgresUpdateRecordsAppearOnKinesisStream(
-                appleNamesToQuantitiesUpdate);
+                appleNamesToQuantitiesUpdateTen);
+        insertRecords(appleNamesToQuantitiesInsertEleven, "11");
+        updateRecords(appleNamesToQuantitiesUpdateEleven, "11");
+        verifyPostgresInsertRecordsAppearOnKinesisStream(
+                appleNamesToQuantitiesInsertEleven);
+        verifyPostgresUpdateRecordsAppearOnKinesisStream(
+                appleNamesToQuantitiesUpdateEleven);
     }
 
 
-    void insertRecords(Map<String, Integer> appleNamesToQuantities) {
+    void insertRecords(Map<String, Integer> appleNamesToQuantities, final String version) {
         appleNamesToQuantities.forEach((k, v) -> {
             try {
-                postgres.insertApple(k, v);
+                getPostgres(version).insertApple(k, v);
             } catch(Exception e) {
                 throw new RuntimeException(e);
             }
         });
     }
 
-    void deleteRecords(Map<String, Integer> appleNamesToQuantities) {
+    void deleteRecords(Map<String, Integer> appleNamesToQuantities, final String version) {
         appleNamesToQuantities.keySet().forEach(k -> {
             try {
-                postgres.deleteApple(k);
+                getPostgres(version).deleteApple(k);
             } catch(Exception e) {
                 throw new RuntimeException(e);
             }
         });
     }
 
-    void updateRecords(Map<String, Integer> appleNamesToQuantities) {
+    void updateRecords(Map<String, Integer> appleNamesToQuantities, final String version) {
         appleNamesToQuantities.forEach((k, v) -> {
             try {
-                postgres.updateApple(k, v);
+                getPostgres(version).updateApple(k, v);
             } catch(Exception e) {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    Postgres getPostgres(final String version) {
+        switch(version) {
+            case "10": return postgresTen;
+            case "11": return postgresEleven;
+            default: throw new RuntimeException("Unrecognized version " + version);
+        }
     }
 
     void verifyPostgresRecordsAppearOnKinesisStream(

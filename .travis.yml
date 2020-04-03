@@ -19,8 +19,7 @@ git:
 
 before_install:
   ## export GPG details
-  - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
-
+  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then echo $GPG_SECRET_KEYS | base64 --decode | gpg --import; fi'
 script:
   - mvn --settings .maven.xml clean install jacoco:report -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
   - bash <(curl -s https://codecov.io/bash)
