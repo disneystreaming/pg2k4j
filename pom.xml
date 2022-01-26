@@ -67,7 +67,7 @@
         <failsafe.version>2.22.1</failsafe.version>
         <testcontainers.version>1.9.1</testcontainers.version>
         <slf4j.version>1.7.21</slf4j.version>
-        <aws.sdk.version>1.11.365</aws.sdk.version>
+        <aws.sdk.version>1.12.147</aws.sdk.version>
         <picoli.version>3.6.1</picoli.version>
         <kcl.version>1.8.8</kcl.version>
         <jaxb.version>2.3.0</jaxb.version>
