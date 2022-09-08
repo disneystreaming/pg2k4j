@@ -59,7 +59,7 @@
         <java.version>11</java.version>
         <kpl.version>0.12.9</kpl.version>
         <jackson.version>2.10.1</jackson.version>
-        <postgres.version>42.2.5</postgres.version>
+        <postgres.version>42.4.1</postgres.version>
         <junit.version>4.11</junit.version>
         <powermock.version>1.7.3</powermock.version>
         <jacoco.version>0.8.2</jacoco.version>
